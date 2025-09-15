@@ -1,8 +1,9 @@
+// tonto_lexer.cpp
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cctype>
-#include <utility>
+#include <cstdlib>
 
 enum class TokenType {
     TK_EOF,
@@ -13,14 +14,15 @@ enum class TokenType {
     TK_SYMBOL,
     TK_OPERATOR,
     TK_COMMENT,
-    TK_UNKNOWN
+    TK_UNKNOWN,
+    TK_ERROR
 };
 
 struct Token {
     TokenType type;
     std::string lexeme;
-    int line{};
-    int col{};
+    int line;
+    int col;
 };
 
 static const char* KEYWORDS_ARR[] = {
@@ -30,9 +32,10 @@ static const char* KEYWORDS_ARR[] = {
     "roleMixin","historicalRoleMixin","genset","where","specializes","ordered","const",
     "derived","relation","instanceOf","as","enum","datatype","name","ordered"
 };
+static const int KEYWORDS_COUNT = sizeof(KEYWORDS_ARR)/sizeof(KEYWORDS_ARR[0]);
 
 bool is_keyword(const std::string &s) {
-    for (auto & i : KEYWORDS_ARR) if (s == i) return true;
+    for (int i=0;i<KEYWORDS_COUNT;++i) if (s == KEYWORDS_ARR[i]) return true;
     return false;
 }
 
@@ -41,8 +44,8 @@ class Lexer {
     size_t i;
     int line, col;
 public:
-    explicit Lexer(std::string text): src(std::move(text)), i(0), line(1), col(1) {}
-    [[nodiscard]] char peek() const { return i < src.size() ? src[i] : '\0'; }
+    Lexer(const std::string &text): src(text), i(0), line(1), col(1) {}
+    char peek() const { return i < src.size() ? src[i] : '\0'; }
     char get() {
         char c = peek();
         if (c == '\0') return '\0';
@@ -54,14 +57,12 @@ public:
         while (true) {
             char c = peek();
             if (c == '\0') return;
-            if (isspace(static_cast<unsigned char>(c))) { get(); continue; }
-            // single-line comment //
+            if (isspace((unsigned char)c)) { get(); continue; }
             if (c == '/' && i+1 < src.size() && src[i+1] == '/') {
                 get(); get();
                 while (peek() != '\0' && peek() != '\n') get();
                 continue;
             }
-            // block comment /* ... */
             if (c == '/' && i+1 < src.size() && src[i+1] == '*') {
                 get(); get();
                 while (true) {
@@ -81,128 +82,157 @@ public:
         char c = peek();
         if (c == '\0') { tk.type = TokenType::TK_EOF; tk.lexeme=""; return tk; }
 
-        // Identifiers / Keywords
-        if (isalpha(static_cast<unsigned char>(c)) || c == '_') {
+        if (isalpha((unsigned char)c) || c == '_') {
             std::string s;
             int startCol = col;
-            while (isalnum(static_cast<unsigned char>(peek())) || peek() == '_' || peek() == '.') {
+            while (isalnum((unsigned char)peek()) || peek() == '_' || peek() == '.') {
                 s.push_back(get());
             }
             tk.lexeme = s;
             tk.type = is_keyword(s) ? TokenType::TK_KEYWORD : TokenType::TK_IDENTIFIER;
-            tk.line = line; tk.col = startCol;
+            tk.col = startCol;
             return tk;
         }
 
-        if (isdigit(static_cast<unsigned char>(c))) {
+        if (isdigit((unsigned char)c)) {
             std::string s;
             int startCol = col;
-            while (isdigit(static_cast<unsigned char>(peek()))) s.push_back(get());
+            while (isdigit((unsigned char)peek())) s.push_back(get());
             if (peek() == '.') {
                 s.push_back(get());
-                while (isdigit(static_cast<unsigned char>(peek()))) s.push_back(get());
+                while (isdigit((unsigned char)peek())) s.push_back(get());
             }
             tk.type = TokenType::TK_NUMBER;
             tk.lexeme = s;
-            tk.line = line; tk.col = startCol;
+            tk.col = startCol;
             return tk;
         }
 
         if (c == '"') {
             int startCol = col;
-            get();
+            get(); // consume "
             std::string s;
+            bool closed = false;
             while (true) {
                 char ch = peek();
-                if (ch == '\0') { tk.type = TokenType::TK_UNKNOWN; tk.lexeme = s; return tk; }
-                if (ch == '"') { get(); break; }
-                if (ch == '\\') { get();
-                    if (char esc = get(); esc == 'n') s.push_back('\n'); else s.push_back(esc); }
-                else s.push_back(get());
+                if (ch == '\0') {
+                    tk.type = TokenType::TK_ERROR;
+                    tk.lexeme = "Unterminated string";
+                    tk.col = startCol;
+                    return tk;
+                }
+                if (ch == '"') { get(); closed = true; break; }
+                if (ch == '\\') {
+                    get();
+                    char esc = get();
+                    if (esc == 'n') s.push_back('\n');
+                    else s.push_back(esc);
+                } else s.push_back(get());
             }
-            tk.type = TokenType::TK_STRING;
-            tk.lexeme = s;
-            tk.line = line; tk.col = startCol;
+            if (!closed) {
+                tk.type = TokenType::TK_ERROR;
+                tk.lexeme = "Unterminated string";
+            } else {
+                tk.type = TokenType::TK_STRING;
+                tk.lexeme = s;
+            }
+            tk.col = startCol;
             return tk;
         }
 
         if (c == '<') {
             int startCol = col;
             std::string temp;
-            temp.push_back(get()); // '<'
-            if (peek() == 'o') { temp.push_back(get()); if (peek() == '>') { temp.push_back(get()); if (peek() == '-') { // expect -- after
-                            temp.push_back(get());
-                            if (peek() == '-') { temp.push_back(get()); tk.type = TokenType::TK_OPERATOR; tk.lexeme = temp; tk.line=line; tk.col=startCol; return tk; }
-                        }}}
+            temp.push_back(get());
+            if (peek() == 'o') { temp.push_back(get()); if (peek() == '>') { temp.push_back(get()); if (peek() == '-') {
+                temp.push_back(get());
+                if (peek() == '-') { temp.push_back(get()); tk.type = TokenType::TK_OPERATOR; tk.lexeme = temp; tk.col=startCol; return tk; }
+            }}}
             if (peek() == '>') {
                 temp.push_back(get());
                 if (peek() == '-') {
                     temp.push_back(get());
-                    if (peek() == '-') { temp.push_back(get()); tk.type = TokenType::TK_OPERATOR; tk.lexeme = temp; tk.line=line; tk.col=startCol; return tk; }
+                    if (peek() == '-') { temp.push_back(get()); tk.type = TokenType::TK_OPERATOR; tk.lexeme = temp; tk.col=startCol; return tk; }
                 }
             }
-            // fallback: single '<'
-            tk.type = TokenType::TK_SYMBOL;
-            tk.lexeme = "<";
-            tk.line = line; tk.col = startCol;
-            return tk;
+            tk.type = TokenType::TK_SYMBOL; tk.lexeme = "<"; tk.col = startCol; return tk;
         }
 
         if (c == '-') {
             int startCol = col;
-            get(); // '-'
-            if (peek() == '-') { get(); tk.type = TokenType::TK_OPERATOR; tk.lexeme = "--"; tk.line=line; tk.col=startCol; return tk; }
-            tk.type = TokenType::TK_SYMBOL; tk.lexeme = "-"; tk.line=line; tk.col=startCol; return tk;
+            get();
+            if (peek() == '-') { get(); tk.type = TokenType::TK_OPERATOR; tk.lexeme = "--"; tk.col=startCol; return tk; }
+            tk.type = TokenType::TK_SYMBOL; tk.lexeme = "-"; tk.col=startCol; return tk;
         }
 
-        if (c == '>') { int startCol = col; get(); tk.type = TokenType::TK_SYMBOL; tk.lexeme = ">"; tk.line=line; tk.col=startCol; return tk; }
+        if (c == '>') { int startCol = col; get(); tk.type = TokenType::TK_SYMBOL; tk.lexeme = ">"; tk.col=startCol; return tk; }
 
         const std::string singleSymbols = "{}()[],:.";
         if (singleSymbols.find(c) != std::string::npos) {
             int startCol = col;
             std::string s(1, get());
-            tk.type = TokenType::TK_SYMBOL; tk.lexeme = s; tk.line=line; tk.col=startCol; return tk;
+            tk.type = TokenType::TK_SYMBOL; tk.lexeme = s; tk.col=startCol; return tk;
         }
 
         if (c == '@') {
             int startCol = col;
             std::string s;
             s.push_back(get());
-            while (isalnum(static_cast<unsigned char>(peek())) || peek()=='_') s.push_back(get());
-            tk.type = TokenType::TK_IDENTIFIER; tk.lexeme = s; tk.line=line; tk.col=startCol; return tk;
+            while (isalnum((unsigned char)peek()) || peek()=='_') s.push_back(get());
+            tk.type = TokenType::TK_IDENTIFIER; tk.lexeme = s; tk.col=startCol; return tk;
         }
 
-        {
-            int startCol = col;
-            std::string s(1, get());
-            tk.type = TokenType::TK_UNKNOWN;
-            tk.lexeme = s;
-            tk.line = line; tk.col = startCol;
-            return tk;
-        }
+        int startCol = col;
+        std::string s(1, get());
+        tk.type = TokenType::TK_UNKNOWN;
+        tk.lexeme = s;
+        tk.col = startCol;
+        return tk;
     }
 };
+
+// converte enum para string (para o CSV)
+std::string tokenTypeToStr(TokenType t) {
+    switch (t) {
+        case TokenType::TK_EOF: return "EOF";
+        case TokenType::TK_IDENTIFIER: return "IDENT";
+        case TokenType::TK_KEYWORD: return "KEYWORD";
+        case TokenType::TK_NUMBER: return "NUMBER";
+        case TokenType::TK_STRING: return "STRING";
+        case TokenType::TK_SYMBOL: return "SYMBOL";
+        case TokenType::TK_OPERATOR: return "OP";
+        case TokenType::TK_COMMENT: return "COMMENT";
+        case TokenType::TK_UNKNOWN: return "UNK";
+        case TokenType::TK_ERROR: return "ERROR";
+    }
+    return "UNK";
+}
 
 int main(int argc, char** argv) {
     if (argc < 2) { std::cerr << "Uso: " << argv[0] << " arquivo.tonto\n"; return 1; }
     std::ifstream in(argv[1], std::ios::in | std::ios::binary);
     if (!in) { std::cerr << "Não consegui abrir " << argv[1] << "\n"; return 1; }
     std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+
     Lexer lx(content);
+
+    // nome do arquivo de saída
+    std::string outName = std::string(argv[1]) + ".tok";
+    std::ofstream out(outName);
+    if (!out) { std::cerr << "Não consegui criar " << outName << "\n"; return 1; }
+
     while (true) {
-        auto [type, lexeme, line, col] = lx.nextToken();
-        if (type == TokenType::TK_EOF) break;
-        std::cout << "[" << line << ":" << col << "] ";
-        switch (type) {
-            case TokenType::TK_KEYWORD: std::cout << "KEYWORD "; break;
-            case TokenType::TK_IDENTIFIER: std::cout << "IDENT "; break;
-            case TokenType::TK_NUMBER: std::cout << "NUMBER "; break;
-            case TokenType::TK_STRING: std::cout << "STRING "; break;
-            case TokenType::TK_SYMBOL: std::cout << "SYMBOL "; break;
-            case TokenType::TK_OPERATOR: std::cout << "OP "; break;
-            default: std::cout << "UNK "; break;
+        Token t = lx.nextToken();
+        if (t.type == TokenType::TK_EOF) break;
+        out << t.line << "," << t.col << "," << tokenTypeToStr(t.type) << "," << t.lexeme << "\n";
+
+        if (t.type == TokenType::TK_ERROR) {
+            std::cerr << "Erro léxico na linha " << t.line << ", coluna " << t.col
+                      << ": " << t.lexeme << std::endl;
+            break;
         }
-        std::cout << "'" << lexeme << "'" << std::endl;
     }
+
+    std::cout << "Tokens salvos em: " << outName << std::endl;
     return 0;
 }
