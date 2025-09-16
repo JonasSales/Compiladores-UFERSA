@@ -49,7 +49,7 @@ public:
     char get() {
         char c = peek();
         if (c == '\0') return '\0';
-        ++i;
+        i++;
         if (c == '\n') { line++; col = 1; } else col++;
         return c;
     }
@@ -110,7 +110,7 @@ public:
 
         if (c == '"') {
             int startCol = col;
-            get(); // consume "
+            get();
             std::string s;
             bool closed = false;
             while (true) {
