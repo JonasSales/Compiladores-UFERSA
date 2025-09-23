@@ -165,8 +165,7 @@ public:
 
         if (c == '>') { int startCol = col; get(); tk.type = TokenType::TK_SYMBOL; tk.lexeme = ">"; tk.col=startCol; return tk; }
 
-        const std::string singleSymbols = "{}()[],:.";
-        if (singleSymbols.find(c) != std::string::npos) {
+        if (const std::string singleSymbols = "{}()[],:."; singleSymbols.find(c) != std::string::npos) {
             int startCol = col;
             std::string s(1, get());
             tk.type = TokenType::TK_SYMBOL; tk.lexeme = s; tk.col=startCol; return tk;
