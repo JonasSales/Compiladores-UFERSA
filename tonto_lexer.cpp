@@ -1,9 +1,8 @@
-// tonto_lexer.cpp
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cctype>
-#include <cstdlib>
+#include <utility>
 
 enum class TokenType {
     TK_EOF,
@@ -32,10 +31,9 @@ static const char* KEYWORDS_ARR[] = {
     "roleMixin","historicalRoleMixin","genset","where","specializes","ordered","const",
     "derived","relation","instanceOf","as","enum","datatype","name","ordered"
 };
-static const int KEYWORDS_COUNT = sizeof(KEYWORDS_ARR)/sizeof(KEYWORDS_ARR[0]);
 
 bool is_keyword(const std::string &s) {
-    for (int i=0;i<KEYWORDS_COUNT;++i) if (s == KEYWORDS_ARR[i]) return true;
+    for (auto & i : KEYWORDS_ARR) if (s == i) return true;
     return false;
 }
 
@@ -44,10 +42,10 @@ class Lexer {
     size_t i;
     int line, col;
 public:
-    Lexer(const std::string &text): src(text), i(0), line(1), col(1) {}
-    char peek() const { return i < src.size() ? src[i] : '\0'; }
+    explicit Lexer(std::string text): src(std::move(text)), i(0), line(1), col(1) {}
+    [[nodiscard]] char peek() const { return i < src.size() ? src[i] : '\0'; }
     char get() {
-        char c = peek();
+        const char c = peek();
         if (c == '\0') return '\0';
         i++;
         if (c == '\n') { line++; col = 1; } else col++;
@@ -55,9 +53,9 @@ public:
     }
     void skip_whitespace_and_comments() {
         while (true) {
-            char c = peek();
+            const char c = peek();
             if (c == '\0') return;
-            if (isspace((unsigned char)c)) { get(); continue; }
+            if (isspace(static_cast<unsigned char>(c))) { get(); continue; }
             if (c == '/' && i+1 < src.size() && src[i+1] == '/') {
                 get(); get();
                 while (peek() != '\0' && peek() != '\n') get();
@@ -66,7 +64,7 @@ public:
             if (c == '/' && i+1 < src.size() && src[i+1] == '*') {
                 get(); get();
                 while (true) {
-                    char ch = get();
+                    const char ch = get();
                     if (ch == '\0') return;
                     if (ch == '*' && peek() == '/') { get(); break; }
                 }
@@ -82,10 +80,10 @@ public:
         char c = peek();
         if (c == '\0') { tk.type = TokenType::TK_EOF; tk.lexeme=""; return tk; }
 
-        if (isalpha((unsigned char)c) || c == '_') {
+        if (isalpha(static_cast<unsigned char>(c)) || c == '_') {
             std::string s;
             int startCol = col;
-            while (isalnum((unsigned char)peek()) || peek() == '_' || peek() == '.') {
+            while (isalnum(static_cast<unsigned char>(peek())) || peek() == '_' || peek() == '.') {
                 s.push_back(get());
             }
             tk.lexeme = s;
@@ -94,13 +92,13 @@ public:
             return tk;
         }
 
-        if (isdigit((unsigned char)c)) {
+        if (isdigit(static_cast<unsigned char>(c))) {
             std::string s;
             int startCol = col;
-            while (isdigit((unsigned char)peek())) s.push_back(get());
+            while (isdigit(static_cast<unsigned char>(peek()))) s.push_back(get());
             if (peek() == '.') {
                 s.push_back(get());
-                while (isdigit((unsigned char)peek())) s.push_back(get());
+                while (isdigit(static_cast<unsigned char>(peek()))) s.push_back(get());
             }
             tk.type = TokenType::TK_NUMBER;
             tk.lexeme = s;
@@ -178,7 +176,7 @@ public:
             int startCol = col;
             std::string s;
             s.push_back(get());
-            while (isalnum((unsigned char)peek()) || peek()=='_') s.push_back(get());
+            while (isalnum(static_cast<unsigned char>(peek())) || peek()=='_') s.push_back(get());
             tk.type = TokenType::TK_IDENTIFIER; tk.lexeme = s; tk.col=startCol; return tk;
         }
 
