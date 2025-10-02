@@ -78,7 +78,7 @@ static const vector<string> KEYWORDS = {
     "intrinsicMode", "kind", "manifestation", "material", "mediation", "memberOf",
     "mixin", "mode", "number", "ordered", "package", "participation", "participational",
     "phase", "phaseMixin", "process", "quality", "quantity", "redefines", "relator", "role",
-    "roleMixin", "situation", "specifics", "string", "subCollectionof", "subkind", "subQualityOf",
+    "roleMixin", "situation", "specifics", "string", "subCollectionOf", "subkind", "subQualityOf",
     "subsets", "termination", "time", "triggers", "value", "where"
 };
 
