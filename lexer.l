@@ -75,7 +75,7 @@ static const vector<string> KEYWORDS = {
     "derivation", "derived", "disjoint", "event", "externalDependence",
     "extrinsicMode", "formal", "general", "genset", "historicalDependence",
     "historicalRole", "historicalRoleMixin", "inherence", "instantiation",
-    "intrisicMode", "kind", "manifestation", "material", "mediation", "memberOf",
+    "intrinsicMode", "kind", "manifestation", "material", "mediation", "memberOf",
     "mixin", "mode", "number", "ordered", "package", "participation", "participational",
     "phase", "phaseMixin", "process", "quality", "quantity", "redefines", "relator", "role",
     "roleMixin", "situation", "specifics", "string", "subCollectionof", "subkind", "subQualityOf",
