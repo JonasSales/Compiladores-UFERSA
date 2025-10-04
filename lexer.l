@@ -97,7 +97,7 @@ void initialize_keywords() {
     keyword_map["quantity"]             = TokenType::CLASS_STEREOTYPE;
     keyword_map["quality"]              = TokenType::CLASS_STEREOTYPE;
     keyword_map["mode"]                 = TokenType::CLASS_STEREOTYPE;
-    keyword_map["intrisicMode"]         = TokenType::CLASS_STEREOTYPE;
+    keyword_map["intrinsicMode"]         = TokenType::CLASS_STEREOTYPE;
     keyword_map["extrinsicMode"]        = TokenType::CLASS_STEREOTYPE;
     keyword_map["subkind"]              = TokenType::CLASS_STEREOTYPE;
     keyword_map["phase"]                = TokenType::CLASS_STEREOTYPE;
