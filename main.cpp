@@ -11,6 +11,8 @@ using std::streambuf;
 using std::cin;
 using std::cout;
 
+extern void initialize_keywords();
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         cerr << "Uso: " << argv[0] << " teste.tonto" << endl;
@@ -34,7 +36,9 @@ int main(int argc, char* argv[]) {
     streambuf* old_cin = cin.rdbuf(in.rdbuf());
     streambuf* old_cout = cout.rdbuf(out.rdbuf());
 
-    out << "[" << endl;
+    initialize_keywords();
+    
+    cout << "[" << endl;
 
     yyFlexLexer lexer;
     lexer.yylex();
