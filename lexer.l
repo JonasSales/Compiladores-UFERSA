@@ -6,19 +6,26 @@
 #include <vector>
 #include <map>
 
-static map<string, TokenType> keyword_map;
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::map;
 
 enum class TokenType {
     CLASS_NAME, RELATION_NAME, INSTANCE_NAME, DATATYPE_NAME,
-    CLASS_STEREOTYPE, RELATION_STEREOTYPE, 
-    RESERVED_WORD, NATIVE_DATATYPE, META_ATTRIBUTE,
+    CLASS_STEREOTYPE, RELATION_STEREOTYPE,
+    RESERVED_WORD, NATIVE_DATA_TYPE, META_ATTRIBUTE,
     NUMBER, STRING, SYMBOL,
     UNKNOWN, END_OF_FILE
 };
+
+static map<string, TokenType> keyword_map;
+string token_to_string(TokenType type);
+string escape_json(const string& s);
+void update_pos(const char* yytext);
+void initialize_keywords();
+void emit_token(TokenType type, const char* yytext, int line, int col);
 
 string token_to_string(TokenType type) {
     switch (type) {
@@ -73,7 +80,6 @@ void update_pos(const char* yytext) {
         }
     }
 }
-
 /* static const vector<string> KEYWORDS = {
     "aggregation", "bringsAbout", "boolean",
     "category", "characterization", "collective",
@@ -111,7 +117,7 @@ void initialize_keywords() {
     keyword_map["quantity"]             = TokenType::CLASS_STEREOTYPE;
     keyword_map["quality"]              = TokenType::CLASS_STEREOTYPE;
     keyword_map["mode"]                 = TokenType::CLASS_STEREOTYPE;
-    keyword_map["intrisicMode"]        = TokenType::CLASS_STEREOTYPE;
+    keyword_map["intrinsicMode"]        = TokenType::CLASS_STEREOTYPE;
     keyword_map["extrinsicMode"]        = TokenType::CLASS_STEREOTYPE;
     keyword_map["subkind"]              = TokenType::CLASS_STEREOTYPE;
     keyword_map["phase"]                = TokenType::CLASS_STEREOTYPE;
@@ -137,7 +143,7 @@ void initialize_keywords() {
     keyword_map["creation"]             = TokenType::RELATION_STEREOTYPE;
     keyword_map["manifestation"]        = TokenType::RELATION_STEREOTYPE;
     keyword_map["bringsAbout"]          = TokenType::RELATION_STEREOTYPE;
-    keyword_map["triggers"]             = TokenType::RELATION_STEREOTYPE;    
+    keyword_map["triggers"]             = TokenType::RELATION_STEREOTYPE;
     keyword_map["composition"]          = TokenType::RELATION_STEREOTYPE;
     keyword_map["aggregation"]          = TokenType::RELATION_STEREOTYPE;
     keyword_map["inherence"]            = TokenType::RELATION_STEREOTYPE;
@@ -199,20 +205,20 @@ LETTER          [a-zA-Z]
 DIGIT           [0-9]
 UNDERLINE       "_"
 
-CLASS_NAME      {UPPERCASE}({LETTER}|{UNDERLINE})*
-/*CLASS_NAME      [A-Z][a-zA-Z_]* *\
+CLASS_NAME      {UPPERCASE}({LETTER}{UNDERLINE})*
 
-RELATION_NAME   {LOWERCASE}({LETTER}|{UNDERLINE})*
-/*RELATION_NAME   [a-z][a-zA-Z_]* *\
+
+RELATION_NAME   {LOWERCASE}({LETTER}{UNDERLINE})*
+
 
 INSTANCE_NAME   {LETTER}({LETTER}|{UNDERLINE})*{DIGIT}+
-/* INSTANCE_NAME   [a-zA-Z][a-zA-Z_]*[0-9]+ *\
+
 
 DATATYPE_NAME   {LETTER}+"DataType"
-/*DATATYPE_NAME   [a-zA-Z]+DataType *\
+
 
 NUMBER          {DIGIT}+(\.{DIGIT}+)?
-/* NUMBER          [0-9]+(\.[0-9]+)? *\
+
 
 STRING          \"([^\\\"]|\\.)*\"
 COMMENT_LINE    "//".*
@@ -249,36 +255,36 @@ COMMENT_BLOCK   "/*"([^*]*\*+([^/*][^*]*\*+)*)*"/"
                 }
 
 {NUMBER}        {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::NUMBER, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::NUMBER, yytext, start_line, start_col);
+}
 
 {STRING}        {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::STRING, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::STRING, yytext, start_line, start_col);
+}
 
-"<>--" |"--<>" |".."|"--" |"..." {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
-                }
+"<>--"|"--<>"|"<>"|".."|"--"|"..." {
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
+}
 
-[{}()\[\],@:*]    { /* @ REINTEGRADO */
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
-                }
+[{}()\[\],@:*]    {
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
+}
 
 [ \t\r\n]+      { update_pos(yytext); }
 
 .               {
-                    int start_line = curr_line, start_col = curr_col;
-                    fprintf(stderr, "[ERRO LÉXICO] Linha %d, Coluna %d: Caractere desconhecido: '%s'.\n", start_line, start_col, yytext);
-                    update_pos(yytext);
-                    emit_token(TokenType::UNKNOWN, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    fprintf(stderr, "[ERRO LÉXICO] Linha %d, Coluna %d: Caractere desconhecido: '%s'.\n", start_line, start_col, yytext);
+    update_pos(yytext);
+    emit_token(TokenType::UNKNOWN, yytext, start_line, start_col);
+}
 
 %%
