@@ -80,30 +80,10 @@ void update_pos(const char* yytext) {
         }
     }
 }
-/* static const vector<string> KEYWORDS = {
-    "aggregation", "bringsAbout", "boolean",
-    "category", "characterization", "collective",
-    "complete", "componentOf", "composition", "comparative",
-    "const", "constitution", "creation", "date", "datetime",
-    "derivation", "derived", "disjoint", "event", "externalDependence",
-    "extrinsicMode", "formal", "general", "genset", "historicalDependence",
-    "historicalRole", "historicalRoleMixin", "inherence", "instantiation",
-    "intrinsicMode", "kind", "manifestation", "material", "mediation", "memberOf",
-    "mixin", "mode", "number", "ordered", "package", "participation", "participational",
-    "phase", "phaseMixin", "process", "quality", "quantity", "redefines", "relator", "role",
-    "roleMixin", "situation", "specifics", "string", "subCollectionOf", "subkind", "subQualityOf",
-    "subsets", "termination", "time", "triggers", "value", "where"
-};
 
-bool is_keyword(const char* s) {
-    for (const auto& kw : KEYWORDS) {
-        if (kw == s) return true;
-    }
-    return false;
-}
-*/
+
 void initialize_keywords() {
-    //ESTEREÓTIPOS DE CLASSE
+    // ESTEREÓTIPOS DE CLASSE
     keyword_map["event"]                = TokenType::CLASS_STEREOTYPE;
     keyword_map["situation"]            = TokenType::CLASS_STEREOTYPE;
     keyword_map["process"]              = TokenType::CLASS_STEREOTYPE;
@@ -117,21 +97,20 @@ void initialize_keywords() {
     keyword_map["quantity"]             = TokenType::CLASS_STEREOTYPE;
     keyword_map["quality"]              = TokenType::CLASS_STEREOTYPE;
     keyword_map["mode"]                 = TokenType::CLASS_STEREOTYPE;
-    keyword_map["intrinsicMode"]        = TokenType::CLASS_STEREOTYPE;
+    keyword_map["intrisicMode"]         = TokenType::CLASS_STEREOTYPE;
     keyword_map["extrinsicMode"]        = TokenType::CLASS_STEREOTYPE;
     keyword_map["subkind"]              = TokenType::CLASS_STEREOTYPE;
     keyword_map["phase"]                = TokenType::CLASS_STEREOTYPE;
     keyword_map["role"]                 = TokenType::CLASS_STEREOTYPE;
     keyword_map["historicalRole"]       = TokenType::CLASS_STEREOTYPE;
-
-    //ESTEREÓTIPOS DE RELAÇÃO
+    // ESTEREÓTIPOS DE RELAÇÃO
     keyword_map["material"]             = TokenType::RELATION_STEREOTYPE;
     keyword_map["derivation"]           = TokenType::RELATION_STEREOTYPE;
     keyword_map["comparative"]          = TokenType::RELATION_STEREOTYPE;
     keyword_map["mediation"]            = TokenType::RELATION_STEREOTYPE;
     keyword_map["characterization"]     = TokenType::RELATION_STEREOTYPE;
     keyword_map["externalDependence"]   = TokenType::RELATION_STEREOTYPE;
-    keyword_map["componentOf"]         = TokenType::RELATION_STEREOTYPE;
+    keyword_map["componentOf"]          = TokenType::RELATION_STEREOTYPE;
     keyword_map["memberOf"]             = TokenType::RELATION_STEREOTYPE;
     keyword_map["subCollectionOf"]      = TokenType::RELATION_STEREOTYPE;
     keyword_map["subQualityOf"]         = TokenType::RELATION_STEREOTYPE;
@@ -150,8 +129,7 @@ void initialize_keywords() {
     keyword_map["value"]                = TokenType::RELATION_STEREOTYPE;
     keyword_map["formal"]               = TokenType::RELATION_STEREOTYPE;
     keyword_map["constitution"]         = TokenType::RELATION_STEREOTYPE;
-
-    //PALAVRAS RESERVADAS
+    // PALAVRAS RESERVADAS
     keyword_map["genset"]       = TokenType::RESERVED_WORD;
     keyword_map["disjoint"]     = TokenType::RESERVED_WORD;
     keyword_map["complete"]     = TokenType::RESERVED_WORD;
@@ -205,54 +183,46 @@ LETTER          [a-zA-Z]
 DIGIT           [0-9]
 UNDERLINE       "_"
 
-CLASS_NAME      {UPPERCASE}({LETTER}{UNDERLINE})*
-
-
-RELATION_NAME   {LOWERCASE}({LETTER}{UNDERLINE})*
-
-
-INSTANCE_NAME   {LETTER}({LETTER}|{UNDERLINE})*{DIGIT}+
-
-
+CLASS_NAME      {UPPERCASE}({LETTER}|{DIGIT}|{UNDERLINE})*
+RELATION_NAME   {LOWERCASE}({LETTER}|{DIGIT}|{UNDERLINE})*
+INSTANCE_NAME   {LETTER}({LETTER}|{DIGIT}|{UNDERLINE})*{DIGIT}+
 DATATYPE_NAME   {LETTER}+"DataType"
 
 
 NUMBER          {DIGIT}+(\.{DIGIT}+)?
-
-
 STRING          \"([^\\\"]|\\.)*\"
 COMMENT_LINE    "//".*
-COMMENT_BLOCK   "/*"([^*]*\*+([^/*][^*]*\*+)*)*"/"
+COMMENT_BLOCK   "/*"([^*]|(\*+[^*/]))*\*+"/"
 %%
 
 {COMMENT_LINE}  |
 {COMMENT_BLOCK} { update_pos(yytext); }
 
 {DATATYPE_NAME} {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::DATATYPE_NAME, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::DATATYPE_NAME, yytext, start_line, start_col);
+}
 
 {INSTANCE_NAME} {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::INSTANCE_NAME, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::INSTANCE_NAME, yytext, start_line, start_col);
+}
 
 {CLASS_NAME}    {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::CLASS_NAME, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::CLASS_NAME, yytext, start_line, start_col);
+}
 
 {RELATION_NAME} {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    auto it = keyword_map.find(yytext);
-                    TokenType type = (it != keyword_map.end()) ? it->second : TokenType::RELATION_NAME;
-                    emit_token(type, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    auto it = keyword_map.find(yytext);
+    TokenType type = (it != keyword_map.end()) ? it->second : TokenType::RELATION_NAME;
+    emit_token(type, yytext, start_line, start_col);
+}
 
 {NUMBER}        {
     int start_line = curr_line, start_col = curr_col;

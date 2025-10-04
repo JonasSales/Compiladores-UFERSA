@@ -313,8 +313,8 @@ int yyFlexLexer::yywrap() { return 1; }
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 14
-#define YY_END_OF_BUFFER 15
+#define YY_NUM_RULES 13
+#define YY_END_OF_BUFFER 14
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -322,14 +322,14 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[56] =
+static const flex_int16_t yy_accept[58] =
     {   0,
-        0,    0,   15,   13,   12,   12,   13,   11,   13,   13,
-       13,    7,    5,    6,   12,    0,    8,    0,    9,    0,
-        0,    1,    0,    7,    4,    5,    5,    5,    6,    6,
-        6,   10,    0,    0,    2,    1,    7,    5,    6,    0,
-        5,    6,    0,    0,    5,    6,    5,    6,    5,    6,
-        5,    6,    3,    3,    0
+        0,    0,   14,   12,   11,   11,   12,   10,   12,   12,
+       12,    7,   12,    5,    6,   11,    0,    8,    0,    9,
+        9,    0,    1,    0,    7,    9,    4,    5,    5,    5,
+        4,    6,    6,    6,    0,    9,    0,    0,    1,    7,
+        0,    5,    6,    2,    5,    6,    5,    6,    5,    6,
+        5,    6,    5,    6,    3,    3,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -339,15 +339,15 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    2,    1,    4,    1,    1,    1,    1,    1,    5,
         5,    6,    1,    5,    7,    8,    9,   10,   10,   10,
-       10,   10,   10,   10,   10,   10,   10,    1,    1,    1,
-        1,    1,    1,    5,   11,   11,   11,   12,   11,   11,
-       11,   11,   11,   11,   11,   11,   11,   11,   11,   11,
-       11,   11,   11,   13,   11,   11,   11,   11,   11,   11,
-        5,   14,    5,    1,   15,    1,   16,   17,   17,   17,
+       10,   10,   10,   10,   10,   10,   10,    5,    1,   11,
+        1,   12,    1,    5,   13,   13,   13,   14,   13,   13,
+       13,   13,   13,   13,   13,   13,   13,   13,   13,   13,
+       13,   13,   13,   15,   13,   13,   13,   13,   13,   13,
+        5,   16,    5,    1,   17,    1,   18,   19,   19,   19,
 
-       18,   17,   17,   17,   17,   17,   17,   17,   17,   17,
-       17,   19,   17,   17,   17,   20,   17,   17,   17,   17,
-       21,   17,    5,    1,    5,    1,    1,    1,    1,    1,
+       20,   19,   19,   19,   19,   19,   19,   19,   19,   19,
+       19,   21,   19,   19,   19,   22,   19,   19,   19,   19,
+       23,   19,    5,    1,    5,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -364,69 +364,69 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[22] =
+static const YY_CHAR yy_meta[24] =
     {   0,
         1,    1,    2,    1,    1,    1,    1,    1,    1,    3,
-        3,    3,    3,    1,    3,    3,    3,    3,    3,    3,
-        3
+        1,    1,    3,    3,    3,    1,    3,    3,    3,    3,
+        3,    3,    3
     } ;
 
 static const flex_int16_t yy_base[65] =
     {   0,
-        0,    0,  101,  102,   20,   22,   22,  102,   93,   91,
-       21,   21,   22,   23,   37,   37,  102,   95,  102,   89,
-       36,    0,   86,   36,   85,   37,   78,   83,   38,   76,
-       81,  102,   84,   48,   83,    0,   78,   67,   66,   79,
-       68,   67,   76,   49,   68,   67,   58,   57,   58,   57,
-       57,   56,    0,    0,  102,   58,   63,   53,   61,   64,
-       40,   25,   67,   70
+        0,    0,   97,   98,   22,   24,   24,   98,   89,   87,
+       23,   23,   82,   20,   25,   41,   32,   98,   90,   81,
+       83,   84,    0,   79,   37,   81,   77,   36,   68,   75,
+       74,   41,   65,   72,   69,   98,   74,   32,    0,   69,
+       71,   55,   54,   98,   57,   56,   58,   57,   48,   47,
+       48,   47,   46,   37,    0,    0,   98,   58,   53,   51,
+       61,   64,   49,   46
     } ;
 
 static const flex_int16_t yy_def[65] =
     {   0,
-       55,    1,   55,   55,   55,   55,   56,   55,   55,   55,
-       55,   55,   57,   58,   55,   56,   55,   56,   55,   55,
-       59,   60,   55,   55,   55,   57,   26,   61,   58,   29,
-       62,   55,   59,   63,   59,   60,   55,   26,   29,   64,
-       26,   29,   64,   63,   26,   29,   26,   29,   26,   29,
-       26,   29,   26,   29,    0,   55,   55,   55,   55,   55,
-       55,   55,   55,   55
+       57,    1,   57,   57,   57,   57,   58,   57,   57,   57,
+       57,   57,   57,   59,   60,   57,   58,   57,   58,   57,
+       57,   61,   62,   57,   57,   57,   63,   59,   28,   63,
+       64,   60,   32,   64,   57,   57,   61,   61,   62,   57,
+       57,   28,   32,   57,   28,   32,   28,   32,   28,   32,
+       28,   32,   28,   32,   28,   32,    0,   57,   57,   57,
+       57,   57,   57,   57
     } ;
 
-static const flex_int16_t yy_nxt[124] =
+static const flex_int16_t yy_nxt[122] =
     {   0,
-        4,    5,    6,    7,    8,    4,    9,   10,   11,   12,
-       13,   13,   13,    4,    4,   14,   14,   14,   14,   14,
-       14,   15,   15,   15,   15,   17,   21,   31,   23,   22,
-       24,   25,   25,   27,   30,   18,   28,   31,   15,   15,
-       17,   34,   28,   23,   35,   24,   25,   25,   27,   30,
-       18,   28,   31,   34,   44,   29,   35,   35,   16,   16,
-       16,   33,   33,   33,   36,   26,   36,   40,   40,   40,
-       43,   43,   43,   54,   53,   52,   51,   50,   49,   48,
-       47,   44,   46,   45,   44,   42,   41,   37,   34,   34,
-       25,   39,   25,   38,   25,   37,   32,   55,   20,   19,
+        4,    5,    6,    7,    8,    8,    9,   10,   11,   12,
+       13,    4,   14,   14,   14,    4,    4,   15,   15,   15,
+       15,   15,   15,   16,   16,   16,   16,   18,   22,   27,
+       24,   23,   25,   29,   31,   18,   30,   38,   33,   19,
+       44,   34,   16,   16,   24,   27,   25,   19,   34,   29,
+       31,   30,   30,   32,   33,   28,   56,   34,   17,   17,
+       17,   37,   37,   37,   39,   55,   39,   54,   53,   52,
+       51,   50,   49,   48,   47,   46,   45,   36,   40,   38,
+       36,   31,   43,   31,   27,   42,   27,   41,   40,   38,
+       36,   35,   57,   26,   21,   20,   57,    3,   57,   57,
 
-       55,    3,   55,   55,   55,   55,   55,   55,   55,   55,
-       55,   55,   55,   55,   55,   55,   55,   55,   55,   55,
-       55,   55,   55
+       57,   57,   57,   57,   57,   57,   57,   57,   57,   57,
+       57,   57,   57,   57,   57,   57,   57,   57,   57,   57,
+       57
     } ;
 
-static const flex_int16_t yy_chk[124] =
+static const flex_int16_t yy_chk[122] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    5,    5,    6,    6,    7,   11,   62,   12,   11,
-       12,   13,   14,   13,   14,    7,   13,   14,   15,   15,
-       16,   21,   61,   24,   21,   24,   26,   29,   26,   29,
-       16,   26,   29,   34,   44,   58,   34,   44,   56,   56,
-       56,   59,   59,   59,   60,   57,   60,   63,   63,   63,
-       64,   64,   64,   52,   51,   50,   49,   48,   47,   46,
-       45,   43,   42,   41,   40,   39,   38,   37,   35,   33,
-       31,   30,   28,   27,   25,   23,   20,   18,   10,    9,
+        1,    1,    1,    5,    5,    6,    6,    7,   11,   14,
+       12,   11,   12,   14,   15,   17,   14,   38,   15,    7,
+       38,   15,   16,   16,   25,   28,   25,   17,   64,   28,
+       32,   63,   28,   60,   32,   59,   54,   32,   58,   58,
+       58,   61,   61,   61,   62,   53,   62,   52,   51,   50,
+       49,   48,   47,   46,   45,   43,   42,   41,   40,   37,
+       35,   34,   33,   31,   30,   29,   27,   26,   24,   22,
+       21,   20,   19,   13,   10,    9,    3,   57,   57,   57,
 
-        3,   55,   55,   55,   55,   55,   55,   55,   55,   55,
-       55,   55,   55,   55,   55,   55,   55,   55,   55,   55,
-       55,   55,   55
+       57,   57,   57,   57,   57,   57,   57,   57,   57,   57,
+       57,   57,   57,   57,   57,   57,   57,   57,   57,   57,
+       57
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -441,30 +441,45 @@ static const flex_int16_t yy_chk[124] =
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::map;
 
 enum class TokenType {
     CLASS_NAME, RELATION_NAME, INSTANCE_NAME, DATATYPE_NAME,
-    KEYWORD, NUMBER, STRING, SYMBOL,
+    CLASS_STEREOTYPE, RELATION_STEREOTYPE,
+    RESERVED_WORD, NATIVE_DATA_TYPE, META_ATTRIBUTE,
+    NUMBER, STRING, SYMBOL,
     UNKNOWN, END_OF_FILE
 };
 
+static map<string, TokenType> keyword_map;
+string token_to_string(TokenType type);
+string escape_json(const string& s);
+void update_pos(const char* yytext);
+void initialize_keywords();
+void emit_token(TokenType type, const char* yytext, int line, int col);
+
 string token_to_string(TokenType type) {
     switch (type) {
-        case TokenType::CLASS_NAME:     return "CLASS_NAME";
-        case TokenType::RELATION_NAME:  return "RELATION_NAME";
-        case TokenType::INSTANCE_NAME:  return "INSTANCE_NAME";
-        case TokenType::DATATYPE_NAME:  return "DATATYPE_NAME";
-        case TokenType::KEYWORD:        return "KEYWORD";
-        case TokenType::NUMBER:         return "NUMBER";
-        case TokenType::STRING:         return "STRING";
-        case TokenType::SYMBOL:         return "SYMBOL";
-        case TokenType::UNKNOWN:        return "UNKNOWN";
-        default:                        return "EOF";
+        case TokenType::CLASS_NAME:           return "CLASS_NAME";
+        case TokenType::RELATION_NAME:        return "RELATION_NAME";
+        case TokenType::INSTANCE_NAME:        return "INSTANCE_NAME";
+        case TokenType::DATATYPE_NAME:        return "DATATYPE_NAME";
+        case TokenType::CLASS_STEREOTYPE:     return "CLASS_STEREOTYPE";
+        case TokenType::RELATION_STEREOTYPE:  return "RELATION_STEREOTYPE";
+        case TokenType::RESERVED_WORD:        return "RESERVED_WORD";
+        case TokenType::NATIVE_DATA_TYPE:     return "NATIVE_DATA_TYPE";
+        case TokenType::META_ATTRIBUTE:       return "META_ATTRIBUTE";
+        case TokenType::NUMBER:               return "NUMBER";
+        case TokenType::STRING:               return "STRING";
+        case TokenType::SYMBOL:               return "SYMBOL";
+        case TokenType::UNKNOWN:              return "UNKNOWN";
+        default:                              return "EOF";
     }
 }
 
@@ -489,7 +504,6 @@ string escape_json(const string& s) {
     return escaped;
 }
 
-
 int curr_line = 1;
 int curr_col  = 1;
 
@@ -504,26 +518,77 @@ void update_pos(const char* yytext) {
     }
 }
 
-static const vector<string> KEYWORDS = {
-    "aggregation", "bringsAbout", "boolean",
-    "category", "characterization", "collective",
-    "complete", "componentOf", "composition", "comparative",
-    "const", "constitution", "creation", "date", "datetime",
-    "derivation", "derived", "disjoint", "event", "externalDependence",
-    "extrinsicMode", "formal", "general", "genset", "historicalDependence",
-    "historicalRole", "historicalRoleMixin", "inherence", "instantiation",
-    "intrisicMode", "kind", "manifestation", "material", "mediation", "memberOf",
-    "mixin", "mode", "number", "ordered", "package", "participation", "participational",
-    "phase", "phaseMixin", "process", "quality", "quantity", "redefines", "relator", "role",
-    "roleMixin", "situation", "specifics", "string", "subCollectionof", "subkind", "subQualityOf",
-    "subsets", "termination", "time", "triggers", "value", "where"
-};
 
-bool is_keyword(const char* s) {
-    for (const auto& kw : KEYWORDS) {
-        if (kw == s) return true;
-    }
-    return false;
+void initialize_keywords() {
+    // ESTEREÓTIPOS DE CLASSE
+    keyword_map["event"]                = TokenType::CLASS_STEREOTYPE;
+    keyword_map["situation"]            = TokenType::CLASS_STEREOTYPE;
+    keyword_map["process"]              = TokenType::CLASS_STEREOTYPE;
+    keyword_map["category"]             = TokenType::CLASS_STEREOTYPE;
+    keyword_map["mixin"]                = TokenType::CLASS_STEREOTYPE;
+    keyword_map["phaseMixin"]           = TokenType::CLASS_STEREOTYPE;
+    keyword_map["roleMixin"]            = TokenType::CLASS_STEREOTYPE;
+    keyword_map["historicalRoleMixin"]  = TokenType::CLASS_STEREOTYPE;
+    keyword_map["kind"]                 = TokenType::CLASS_STEREOTYPE;
+    keyword_map["collective"]           = TokenType::CLASS_STEREOTYPE;
+    keyword_map["quantity"]             = TokenType::CLASS_STEREOTYPE;
+    keyword_map["quality"]              = TokenType::CLASS_STEREOTYPE;
+    keyword_map["mode"]                 = TokenType::CLASS_STEREOTYPE;
+    keyword_map["intrisicMode"]         = TokenType::CLASS_STEREOTYPE;
+    keyword_map["extrinsicMode"]        = TokenType::CLASS_STEREOTYPE;
+    keyword_map["subkind"]              = TokenType::CLASS_STEREOTYPE;
+    keyword_map["phase"]                = TokenType::CLASS_STEREOTYPE;
+    keyword_map["role"]                 = TokenType::CLASS_STEREOTYPE;
+    keyword_map["historicalRole"]       = TokenType::CLASS_STEREOTYPE;
+    // ESTEREÓTIPOS DE RELAÇÃO
+    keyword_map["material"]             = TokenType::RELATION_STEREOTYPE;
+    keyword_map["derivation"]           = TokenType::RELATION_STEREOTYPE;
+    keyword_map["comparative"]          = TokenType::RELATION_STEREOTYPE;
+    keyword_map["mediation"]            = TokenType::RELATION_STEREOTYPE;
+    keyword_map["characterization"]     = TokenType::RELATION_STEREOTYPE;
+    keyword_map["externalDependence"]   = TokenType::RELATION_STEREOTYPE;
+    keyword_map["componentOf"]          = TokenType::RELATION_STEREOTYPE;
+    keyword_map["memberOf"]             = TokenType::RELATION_STEREOTYPE;
+    keyword_map["subCollectionOf"]      = TokenType::RELATION_STEREOTYPE;
+    keyword_map["subQualityOf"]         = TokenType::RELATION_STEREOTYPE;
+    keyword_map["instantiation"]        = TokenType::RELATION_STEREOTYPE;
+    keyword_map["termination"]          = TokenType::RELATION_STEREOTYPE;
+    keyword_map["participational"]      = TokenType::RELATION_STEREOTYPE;
+    keyword_map["participation"]        = TokenType::RELATION_STEREOTYPE;
+    keyword_map["historicalDependence"] = TokenType::RELATION_STEREOTYPE;
+    keyword_map["creation"]             = TokenType::RELATION_STEREOTYPE;
+    keyword_map["manifestation"]        = TokenType::RELATION_STEREOTYPE;
+    keyword_map["bringsAbout"]          = TokenType::RELATION_STEREOTYPE;
+    keyword_map["triggers"]             = TokenType::RELATION_STEREOTYPE;
+    keyword_map["composition"]          = TokenType::RELATION_STEREOTYPE;
+    keyword_map["aggregation"]          = TokenType::RELATION_STEREOTYPE;
+    keyword_map["inherence"]            = TokenType::RELATION_STEREOTYPE;
+    keyword_map["value"]                = TokenType::RELATION_STEREOTYPE;
+    keyword_map["formal"]               = TokenType::RELATION_STEREOTYPE;
+    keyword_map["constitution"]         = TokenType::RELATION_STEREOTYPE;
+    // PALAVRAS RESERVADAS
+    keyword_map["genset"]       = TokenType::RESERVED_WORD;
+    keyword_map["disjoint"]     = TokenType::RESERVED_WORD;
+    keyword_map["complete"]     = TokenType::RESERVED_WORD;
+    keyword_map["general"]      = TokenType::RESERVED_WORD;
+    keyword_map["specifics"]    = TokenType::RESERVED_WORD;
+    keyword_map["where"]        = TokenType::RESERVED_WORD;
+    keyword_map["package"]      = TokenType::RESERVED_WORD;
+
+    //TIPOS DE DADOS NATIVOS
+    keyword_map["number"]   = TokenType::NATIVE_DATA_TYPE;
+    keyword_map["string"]   = TokenType::NATIVE_DATA_TYPE;
+    keyword_map["boolean"]  = TokenType::NATIVE_DATA_TYPE;
+    keyword_map["date"]     = TokenType::NATIVE_DATA_TYPE;
+    keyword_map["time"]     = TokenType::NATIVE_DATA_TYPE;
+    keyword_map["datetime"] = TokenType::NATIVE_DATA_TYPE;
+
+    //META-ATRIBUTOS
+    keyword_map["ordered"]      = TokenType::META_ATTRIBUTE;
+    keyword_map["const"]        = TokenType::META_ATTRIBUTE;
+    keyword_map["derived"]      = TokenType::META_ATTRIBUTE;
+    keyword_map["subsets"]      = TokenType::META_ATTRIBUTE;
+    keyword_map["redefines"]    = TokenType::META_ATTRIBUTE;
 }
 
 // =================================================================
@@ -544,9 +609,9 @@ void emit_token(TokenType type, const char* yytext, int line, int col) {
     cout << "  }";
 }
 
-#line 548 "lex.yy.cc"
+#line 613 "lex.yy.cc"
 /* Expressões Regulares para as convenções da linguagem TONTO */
-#line 550 "lex.yy.cc"
+#line 615 "lex.yy.cc"
 
 #define INITIAL 0
 
@@ -678,10 +743,10 @@ YY_DECL
 		}
 
 	{
-#line 122 "lexer.l"
+#line 196 "lexer.l"
 
 
-#line 685 "lex.yy.cc"
+#line 750 "lex.yy.cc"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -708,13 +773,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 56 )
+				if ( yy_current_state >= 58 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 102 );
+		while ( yy_base[yy_current_state] != 98 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -739,118 +804,110 @@ do_action:	/* This label is used only to access EOF actions. */
 			goto yy_find_action;
 
 case 1:
-#line 125 "lexer.l"
+#line 199 "lexer.l"
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 125 "lexer.l"
+#line 199 "lexer.l"
 { update_pos(yytext); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 127 "lexer.l"
+#line 201 "lexer.l"
 {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::DATATYPE_NAME, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::DATATYPE_NAME, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 133 "lexer.l"
+#line 207 "lexer.l"
 {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::INSTANCE_NAME, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::INSTANCE_NAME, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 139 "lexer.l"
+#line 213 "lexer.l"
 {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    TokenType type = is_keyword(yytext) ? TokenType::KEYWORD : TokenType::CLASS_NAME;
-                    emit_token(type, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::CLASS_NAME, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 146 "lexer.l"
+#line 219 "lexer.l"
 {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    TokenType type = is_keyword(yytext) ? TokenType::KEYWORD : TokenType::RELATION_NAME;
-                    emit_token(type, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    auto it = keyword_map.find(yytext);
+    TokenType type = (it != keyword_map.end()) ? it->second : TokenType::RELATION_NAME;
+    emit_token(type, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 153 "lexer.l"
+#line 227 "lexer.l"
 {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::NUMBER, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::NUMBER, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 159 "lexer.l"
+#line 233 "lexer.l"
 {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::STRING, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::STRING, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 165 "lexer.l"
-{ /* REGRA REINTEGRADA */
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
-                }
+#line 239 "lexer.l"
+{
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 171 "lexer.l"
+#line 245 "lexer.l"
 {
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
-                }
+    int start_line = curr_line, start_col = curr_col;
+    update_pos(yytext);
+    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 11:
+/* rule 11 can match eol */
 YY_RULE_SETUP
-#line 177 "lexer.l"
-{ /* @ REINTEGRADO */
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::SYMBOL, yytext, start_line, start_col);
-                }
+#line 251 "lexer.l"
+{ update_pos(yytext); }
 	YY_BREAK
 case 12:
-/* rule 12 can match eol */
 YY_RULE_SETUP
-#line 183 "lexer.l"
-{ update_pos(yytext); }
+#line 253 "lexer.l"
+{
+    int start_line = curr_line, start_col = curr_col;
+    fprintf(stderr, "[ERRO LÉXICO] Linha %d, Coluna %d: Caractere desconhecido: '%s'.\n", start_line, start_col, yytext);
+    update_pos(yytext);
+    emit_token(TokenType::UNKNOWN, yytext, start_line, start_col);
+}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 185 "lexer.l"
-{
-                    int start_line = curr_line, start_col = curr_col;
-                    update_pos(yytext);
-                    emit_token(TokenType::UNKNOWN, yytext, start_line, start_col);
-                }
-	YY_BREAK
-case 14:
-YY_RULE_SETUP
-#line 191 "lexer.l"
+#line 260 "lexer.l"
 ECHO;
 	YY_BREAK
-#line 854 "lex.yy.cc"
+#line 911 "lex.yy.cc"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1267,7 +1324,7 @@ int yyFlexLexer::yy_get_next_buffer()
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 56 )
+			if ( yy_current_state >= 58 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1295,11 +1352,11 @@ int yyFlexLexer::yy_get_next_buffer()
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 56 )
+		if ( yy_current_state >= 58 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 55);
+	yy_is_jam = (yy_current_state == 57);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1813,5 +1870,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 191 "lexer.l"
+#line 260 "lexer.l"
 
