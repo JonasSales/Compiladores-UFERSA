@@ -1,15 +1,22 @@
-comandos para rodar o projeto:
+    Projeto Ufersa Patrício Compiladores
 
-flex lexer.l 
+# 1. Clone o repositório do GitHub para a sua máquina local.
+#    Este comando baixa todos os arquivos do projeto.
+git clone [https://github.com/JonasSales/Compiladores-UFERSA.git](https://github.com/JonasSales/Compiladores-UFERSA.git)
 
-Para criar o arquivo lex.yy.cc é nele em que está a compilação do lexer.l
+# 2. Navegue para o diretório do projeto que você acabou de clonar.
+cd Compiladores-UFERSA
 
-//Comando para compilar e criar o executavel no linux do código
-g++ -o tonto_lexer lex.yy.cc main.cpp
+# 3. Este comando utiliza o CMake para configurar o projeto e preparar
+# o ambiente de compilação na pasta 'cmake-build-debug'.
+cmake -S . -B cmake-build-debug 
 
+# 4. Este comando compila o código-fonte, gerando o executável.
+# O CMake cuidará de chamar o Flex para gerar o analisador léxico
+# e, em seguida, compilará todos os arquivos C++.
+cmake --build cmake-build-debug
 
-//
-./tonto_lexer teste.tonto para fazer a tabela de simbolos
-
-
-Por fim será feito um arquivo com o nome do arquivo que foi passado.tonto.tok com os simbolos.
+# 5. Execute o programa passando como argumento o caminho para um arquivo de código.
+# O exemplo abaixo utiliza o arquivo 'teste.tonto'.
+# A saída será um arquivo JSON com os tokens encontrados.
+./bin/Debug/tonto_lexer testes/teste.tonto
