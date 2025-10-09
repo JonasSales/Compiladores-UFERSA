@@ -1,5 +1,3 @@
-// entities/Token.h
-
 #ifndef COMPILADORESUFERSA_TOKEN_H
 #define COMPILADORESUFERSA_TOKEN_H
 
@@ -9,15 +7,16 @@ enum class TokenType;
 
 class Token {
 private:
-    static int id;
+    static int contador;
+    int id;
     int line;
     int column;
     TokenType type;
-    std::string lexeme; // Usar std::string
+    std::string lexeme;
 
 public:
     Token();
-    Token(int line, int column, TokenType type, const std::string &lexeme); // Usar std::string
+    Token(int line, int column, TokenType type, const std::string &lexeme);
 
     [[nodiscard]] int getLine() const;
     void setLine(int line);
@@ -28,8 +27,8 @@ public:
     [[nodiscard]] TokenType getTokenType() const;
     void setTokenType(TokenType type);
 
-    std::string getLexeme(); // Usar std::string
-    void setLexeme(std::string lexeme); // Usar std::string
+    std::string getLexeme();
+    void setLexeme(std::string lexeme);
 
     int getContador() const;
 };

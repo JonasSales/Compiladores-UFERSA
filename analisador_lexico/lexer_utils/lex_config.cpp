@@ -1,9 +1,6 @@
-// lexer_utils/lex_config.cpp
-
 #include "lex_config.h"
-#include "../entities/Token.h" // Inclua Token.h aqui
+#include "../entities/Token.h"
 
-// Definição do vetor global de tokens
 std::vector<Token> tokens;
 
 std::string token_to_string(const TokenType type) {

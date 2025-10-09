@@ -1,7 +1,3 @@
-//
-// Created by guilherme on 09/10/2025.
-//
-
 #include "Lexer_Utils.h"
 
 int Lexer_Utils::curr_line = 1;

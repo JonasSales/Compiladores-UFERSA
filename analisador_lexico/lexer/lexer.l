@@ -1,10 +1,10 @@
 %option noyywrap c++
 
 %{
-#include "entities/Token.h"
-#include "../lexer_utils/lex_config.h
-#include "../lexer_utils/KeywordManager.h"
-#include "../lexer_utils/Lexer_Utils.h"
+#include "analisador_lexico/entities/Token.h"
+#include "analisador_lexico/lexer_utils/lex_config.h"
+#include "analisador_lexico/lexer_utils/KeywordManager.h"
+#include "analisador_lexico/lexer_utils/Lexer_Utils.h"
 
 KeywordManager keywords;
 

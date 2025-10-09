@@ -1,5 +1,3 @@
-// lexer_utils/lex_config.h
-
 #ifndef COMPILADORESUFERSA_LEX_CONFIG_H
 #define COMPILADORESUFERSA_LEX_CONFIG_H
 #include <format>
@@ -9,7 +7,6 @@
 
 class Token;
 
-// Usando declarações explícitas de namespace
 extern std::vector<Token> tokens;
 
 enum class TokenType {
