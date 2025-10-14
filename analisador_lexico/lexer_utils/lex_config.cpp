@@ -1,9 +1,11 @@
 #include "lex_config.h"
 #include "../entities/Token.h"
+#include "analisador_lexico/entities/TokenAnalisys.h"
 
-std::vector<Token> tokens;
+map<int, Token> tokens;
+TokenAnalisys tokenAnalisys;
 
-std::string token_to_string(const TokenType type) {
+string tokenToString(const TokenType type) {
     switch (type) {
         case TokenType::CLASS_NAME:           return "CLASS_NAME";
         case TokenType::RELATION_NAME:        return "RELATION_NAME";

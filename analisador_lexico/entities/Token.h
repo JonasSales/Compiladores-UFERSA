@@ -3,6 +3,8 @@
 
 #include <string>
 
+using std::string;
+
 enum class TokenType;
 
 class Token {
@@ -12,11 +14,11 @@ private:
     int line;
     int column;
     TokenType type;
-    std::string lexeme;
+    string lexeme;
 
 public:
     Token();
-    Token(int line, int column, TokenType type, const std::string &lexeme);
+    Token(int line, int column, TokenType type, const string &lexeme);
 
     [[nodiscard]] int getLine() const;
     void setLine(int line);
@@ -27,10 +29,10 @@ public:
     [[nodiscard]] TokenType getTokenType() const;
     void setTokenType(TokenType type);
 
-    std::string getLexeme();
-    void setLexeme(std::string lexeme);
+    [[nodiscard]] string getLexeme() const;
+    void setLexeme(string lexeme);
 
-    int getContador() const;
+    [[nodiscard]] int getContador() const;
 };
 
 #endif //COMPILADORESUFERSA_TOKEN_H

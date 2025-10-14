@@ -8,14 +8,13 @@
 using std::map;
 using std::string;
 
-
 class KeywordManager {
 private:
-    map<string, TokenType> keyword_map;
+    map<string, TokenType> keywordMap;
 
 public:
     KeywordManager();
-    TokenType getType(const string& word) const;
+    [[nodiscard]] TokenType getType(const string& word) const;
 };
 
 #endif //COMPILADORESUFERSA_KEYWORDMANAGER_H

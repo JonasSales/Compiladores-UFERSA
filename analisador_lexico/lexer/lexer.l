@@ -1,28 +1,31 @@
-%option noyywrap c++
+%option noyywrap c++ yylineno
 
 %{
 #include "analisador_lexico/entities/Token.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
 #include "analisador_lexico/lexer_utils/KeywordManager.h"
-#include "analisador_lexico/lexer_utils/Lexer_Utils.h"
 
 KeywordManager keywords;
-
+int column = 1;
 %}
 
 /* Expressões Regulares para as convenções da linguagem TONTO */
-DELIM           [ \t\n]
+DELIM           [ \t\r]
 WHITE_SPACES    {DELIM}+
 UPPERCASE       [A-Z]
 LOWERCASE       [a-z]
 LETTER          [a-zA-Z]
 DIGIT           [0-9]
 UNDERLINE       "_"
+SPECIALSYMBOLS  [{}\[\]()]
 
 CLASS_NAME      {UPPERCASE}({LETTER}|{UNDERLINE})*
 RELATION_NAME   {LOWERCASE}({LETTER}|{UNDERLINE})*
 INSTANCE_NAME   {LETTER}({LETTER}|{DIGIT}|{UNDERLINE})*{DIGIT}+
 DATATYPE_NAME   {LETTER}+"DataType"
+
+CPF             {DIGIT}{3}\.{DIGIT}{3}\.{DIGIT}{3}-{DIGIT}{2}
+PHONENUMBER     (\({DIGIT}{2}\)[ ]?)?9?{DIGIT}{4}-{DIGIT}{4}
 
 NUMBER          {DIGIT}+(\.{DIGIT}+)?
 STRING          \"([^\\\"]|\\.)*\"
@@ -31,64 +34,95 @@ COMMENT_BLOCK   "/*"([^*]|(\*+[^*/]))*\*+"/"
 %%
 
 {COMMENT_LINE}  |
-{COMMENT_BLOCK} { Lexer_Utils::update_pos(yytext); }
+{COMMENT_BLOCK} { 
+    for (int i = 0; yytext[i] != '\0'; i++) {
+            if (yytext[i] == '\n') {
+                column = 1;
+            } else {
+                column++;
+            }
+        }
+}
 
 {DATATYPE_NAME} {
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, TokenType::DATATYPE_NAME, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+    Token token = {yylineno, column, TokenType::DATATYPE_NAME, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
 {INSTANCE_NAME} {
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, TokenType::INSTANCE_NAME, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+    Token token = {yylineno, column, TokenType::INSTANCE_NAME, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
 {CLASS_NAME} {
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, TokenType::CLASS_NAME, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+    Token token = {yylineno, column, TokenType::CLASS_NAME, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
 {RELATION_NAME} {
     TokenType type = keywords.getType(yytext);
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, type, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+    Token token = {yylineno, column, type, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
 {NUMBER} {
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, TokenType::NUMBER, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+    Token token = {yylineno, column, TokenType::NUMBER, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
 {STRING} {
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, TokenType::STRING, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+    Token token = {yylineno, column, TokenType::STRING, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
 "<>--"|"--<>"|"<>"|".."|"--"|"..." {
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, TokenType::SYMBOL, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+    Token token = {yylineno, column, TokenType::SYMBOL, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
-[{}()\[\],@:*.] {
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, TokenType::SYMBOL, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+{CPF} {
+    Token token = {yylineno, column, TokenType::NUMBER, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
-[ \t\r\n]+ { Lexer_Utils::update_pos(yytext); }
+{PHONENUMBER} {
+    Token token = {yylineno, column, TokenType::NUMBER, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
+}
+
+{SPECIALSYMBOLS} {
+    Token token = {yylineno, column, TokenType::SYMBOL, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
+}
+
+[,@:*.-] {
+    Token token = {yylineno, column, TokenType::SYMBOL, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
+}
+
+\n {
+    column = 1;
+}
+
+{DELIM} {
+    column+= yyleng;;
+}
 
 . {
-    fprintf(stderr, "[ERRO LÉXICO] Linha %d, Coluna %d: Caractere desconhecido: '%s'.\n",
-            Lexer_Utils::curr_line, Lexer_Utils::curr_col, yytext);
-    Token token = {Lexer_Utils::curr_line, Lexer_Utils::curr_col, TokenType::UNKNOWN, yytext};
-    Lexer_Utils::update_pos(yytext);
-    tokens.push_back(token);
+    fprintf(stderr, "[ERRO LÉXICO] Linha %d, Coluna %d: Caractere desconhecido: '%s'.\n", yylineno, column, yytext);
+    Token token = {yylineno, column, TokenType::UNKNOWN, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 %%

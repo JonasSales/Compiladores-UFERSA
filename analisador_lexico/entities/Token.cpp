@@ -1,11 +1,16 @@
 #include "Token.h"
-#include "../lexer_utils/lex_config.h" // Adicionado para a definição completa de TokenType
+#include "../lexer_utils/lex_config.h"
 
 int Token::contador = 1;
 
-Token::Token() : id(contador++), line(0), column(0), type(TokenType::UNKNOWN), lexeme("") {}
+Token::Token() {
+    this->id = 0;
+    this->line = 0;
+    this->column = 0;
+    this->type = TokenType::UNKNOWN;
+}
 
-Token::Token(const int line, const int column, const TokenType type, const std::string &lexeme)
+Token::Token(const int line, const int column, const TokenType type, const string &lexeme)
     : id(contador++), line(line), column(column), type(type), lexeme(lexeme) {}
 
 int Token::getLine() const {
@@ -32,7 +37,7 @@ void Token::setTokenType(TokenType type) {
     this->type = type;
 }
 
-std::string Token::getLexeme() {
+std::string Token::getLexeme() const {
     return lexeme;
 }
 

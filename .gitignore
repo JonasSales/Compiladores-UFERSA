@@ -1,3 +1,4 @@
-teste.tonto.tok
-teste.tonto.json
-/arquivosTonto
+testes/teste.tonto_analisys.json
+testes/teste.tonto_list.json
+bin
+cmake-build-debug

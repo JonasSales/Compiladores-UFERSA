@@ -2,12 +2,15 @@
 #define COMPILADORESUFERSA_LEX_CONFIG_H
 #include <format>
 #include <string>
-#include <vector>
+#include "map"
 #include "../entities/Token.h"
 
-class Token;
+class TokenAnalisys;
+using std::map;
+using std::string;
 
-extern std::vector<Token> tokens;
+extern map<int, Token> tokens;
+extern TokenAnalisys tokenAnalisys;
 
 enum class TokenType {
     CLASS_NAME, RELATION_NAME, INSTANCE_NAME, DATATYPE_NAME,
@@ -17,6 +20,6 @@ enum class TokenType {
     UNKNOWN, END_OF_FILE
 };
 
-std::string token_to_string(TokenType type);
+string tokenToString(TokenType type);
 
 #endif //COMPILADORESUFERSA_LEX_CONFIG_H
