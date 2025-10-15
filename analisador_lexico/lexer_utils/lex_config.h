@@ -1,6 +1,5 @@
 #ifndef COMPILADORESUFERSA_LEX_CONFIG_H
 #define COMPILADORESUFERSA_LEX_CONFIG_H
-#include <format>
 #include <string>
 #include "map"
 #include "../entities/Token.h"
