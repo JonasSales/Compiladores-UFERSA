@@ -4,7 +4,6 @@
 #include "FlexLexer.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
 #include "analisador_lexico/util/JsonWriter.h"
-#include "analisador_lexico/entities/TokenAnalisys.h"
 
 using std::ifstream;
 using std::ofstream;
