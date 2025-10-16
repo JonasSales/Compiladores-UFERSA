@@ -1,10 +1,5 @@
-//
-// Created by jonas on 10/15/25.
-//
-
 #ifndef COMPILADORESUFERSA_CLASSSTEREOTYPEKEYWORDS_H
 #define COMPILADORESUFERSA_CLASSSTEREOTYPEKEYWORDS_H
-
 
 #include "../KeyWordGroup.h"
 
@@ -37,6 +32,5 @@ public:
         };
     }
 };
-
 
 #endif //COMPILADORESUFERSA_CLASSSTEREOTYPEKEYWORDS_H

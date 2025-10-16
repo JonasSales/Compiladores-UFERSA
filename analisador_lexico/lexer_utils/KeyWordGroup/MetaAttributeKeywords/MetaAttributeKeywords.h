@@ -1,13 +1,8 @@
-//
-// Created by jonas on 10/15/25.
-//
-
 #ifndef COMPILADORESUFERSA_METAATTRIBUTEKEYWORDS_H
 #define COMPILADORESUFERSA_METAATTRIBUTEKEYWORDS_H
 
 #include "analisador_lexico/lexer_utils/lex_config.h"
 #include "../KeyWordGroup.h"
-
 
 class MetaAttributeKeywords final : public KeywordGroup {
 public:

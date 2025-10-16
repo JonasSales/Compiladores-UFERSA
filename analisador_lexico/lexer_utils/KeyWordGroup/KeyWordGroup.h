@@ -1,10 +1,5 @@
-//
-// Created by jonas on 10/15/25.
-//
-
 #ifndef COMPILADORESUFERSA_KEYWORDGROUP_H
 #define COMPILADORESUFERSA_KEYWORDGROUP_H
-
 
 #include <string>
 #include <unordered_map>
