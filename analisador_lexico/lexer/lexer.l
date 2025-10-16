@@ -3,9 +3,9 @@
 %{
 #include "analisador_lexico/entities/Token.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
-#include "analisador_lexico/lexer_utils/KeywordManager.h"
+#include "analisador_lexico/lexer_utils/KeyWordGroup/KeyWordManager/KeyWordManager.h"
 
-KeywordManager keywords;
+KeyWordManager keywords;
 int column = 1;
 %}
 
