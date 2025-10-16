@@ -20,7 +20,8 @@ public:
             {"package", TokenType::RESERVED_WORD},
             {"import", TokenType::RESERVED_WORD},
             {"functional-complexes", TokenType::RESERVED_WORD},
-            {"intrinsic-modes", TokenType::RESERVED_WORD}
+            {"intrinsic-modes", TokenType::RESERVED_WORD},
+            {"disjoint_complete", TokenType::RESERVED_WORD}
         };
     }
 };

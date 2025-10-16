@@ -20,6 +20,7 @@ string tokenToString(const TokenType type) {
         case TokenType::STRING:               return "STRING";
         case TokenType::SYMBOL:               return "SYMBOL";
         case TokenType::UNKNOWN:              return "UNKNOWN";
+        case TokenType::CARDINALITY:          return "CARDINALITY";
         default:                              return "EOF";
     }
 }

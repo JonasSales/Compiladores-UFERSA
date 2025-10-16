@@ -34,9 +34,10 @@ int main(int argc, char* argv[]) {
 
     // Nome dos arquivos de saída dentro da pasta "teste"
     string filename = std::filesystem::path(argv[1]).filename().string();
+
     //Nome do arquivo para a lista de Tokens
-    string listOutName = "testes/" + filename + "_list.json";
-    string analisysOutName = "testes/" + filename + "_analisys.json";
+    string listOutName = "testes/lexerTokenAnalisys.json";
+    string analisysOutName = "testes/lexerTokenCount.json";
 
     streambuf* old_cin = cin.rdbuf(in.rdbuf());
 

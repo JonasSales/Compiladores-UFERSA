@@ -17,15 +17,17 @@ LOWERCASE       [a-z]
 LETTER          [a-zA-Z]
 DIGIT           [0-9]
 UNDERLINE       "_"
-SPECIALSYMBOLS  [{}\[\]()]
+SPECIALSYMBOLS  [{}()]
 
 CLASS_NAME      {UPPERCASE}({LETTER}|{UNDERLINE})*
-RELATION_NAME   {LOWERCASE}({LETTER}|{UNDERLINE})*
+RELATION_NAME   {LOWERCASE}({LETTER}|{UNDERLINE}|-)*
 INSTANCE_NAME   {LETTER}({LETTER}|{DIGIT}|{UNDERLINE})*{DIGIT}+
 DATATYPE_NAME   {LETTER}+"DataType"
 
 CPF             {DIGIT}{3}\.{DIGIT}{3}\.{DIGIT}{3}-{DIGIT}{2}
 PHONENUMBER     (\({DIGIT}{2}\)[ ]?)?9?{DIGIT}{4}-{DIGIT}{4}
+
+CARDINALITY     "["{NUMBER}(".."({NUMBER}|"*"))?"]"
 
 NUMBER          {DIGIT}+(\.{DIGIT}+)?
 STRING          \"([^\\\"]|\\.)*\"
@@ -42,6 +44,12 @@ COMMENT_BLOCK   "/*"([^*]|(\*+[^*/]))*\*+"/"
                 column++;
             }
         }
+}
+
+{CARDINALITY} {
+Token token = {yylineno, column, TokenType::CARDINALITY, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
 }
 
 {DATATYPE_NAME} {
@@ -81,7 +89,7 @@ COMMENT_BLOCK   "/*"([^*]|(\*+[^*/]))*\*+"/"
     column+= yyleng;
 }
 
-"<>--"|"--<>"|"<>"|".."|"--"|"..." {
+"<>--"|"--<>"|"<>"|".."|"--"|"..."|"<o>--" {
     Token token = {yylineno, column, TokenType::SYMBOL, yytext};
     tokens.emplace(token.getContador(), token);
     column+= yyleng;

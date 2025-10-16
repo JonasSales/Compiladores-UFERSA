@@ -1,50 +1,52 @@
-cmake_minimum_required(VERSION 3.25.1)
-project(CompiladoresUFERSA)
+cmake_minimum_required(VERSION 3.10)
+project(tonto_lexer CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+# Define o padrão do C++ para C++17, que é bom para projetos modernos.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# --- Encontrar o Flex e configurar a geração do lexer ---
+# --- Automação do Flex (Analisador Léxico) ---
+
+# 1. Encontra o pacote Flex no sistema.
 find_package(FLEX REQUIRED)
 
-# Define o local do arquivo de saída do Flex
-set(FLEX_OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/lex.yy.cc)
+# 2. Define o caminho para o arquivo de saída do Flex.
+set(LEXER_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/lex.yy.cc)
 
-# Isso irá gerar o arquivo ${FLEX_OUTPUT_FILE} a partir do lexer.l
+# 3. Cria uma regra customizada para compilar o lexer.
+#    Esta regra executa o Flex no seu arquivo .l e gera o .cc.
+#    O arquivo .cc é gerado na pasta de build para manter o projeto limpo.
 add_custom_command(
-        OUTPUT ${FLEX_OUTPUT_FILE}
-        COMMAND ${FLEX_EXECUTABLE} -o ${FLEX_OUTPUT_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/analisador_lexico/lexer/lexer.l
-        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/analisador_lexico/lexer/lexer.l
+        OUTPUT ${LEXER_OUTPUT}
+        COMMAND ${FLEX_EXECUTABLE} -o ${LEXER_OUTPUT} ${CMAKE_CURRENT_SOURCE_DIR}/analisador_lexico/lexer/lexer.l
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/analisador_lexico/lexer/lexer.l
+        COMMENT "Gerando o analisador léxico a partir de lexer.l"
 )
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
-endif()
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+# --- Descoberta Automática de Arquivos Fonte ---
 
+# 4. Encontra todos os arquivos .h e .cpp recursivamente.
+#    Isso evita que você precise adicionar cada novo arquivo manualmente.
+file(GLOB_RECURSE SOURCES
+        "main.cpp"
+        "analisador_lexico/*.h"
+        "analisador_lexico/*.cpp"
+)
+
+# --- Configuração do Executável ---
+
+# 5. Adiciona o diretório principal ao caminho de includes.
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+# 6. Define o nome do executável e suas fontes.
+#    Note que incluímos o arquivo gerado pelo Flex (${LEXER_OUTPUT}).
 add_executable(tonto_lexer
-        main.cpp
-        ./analisador_lexico/entities/Token.cpp
-        ./analisador_lexico/entities/TokenAnalisys.cpp
-        ./analisador_lexico/lexer_utils/lex_config.cpp
-        ./analisador_lexico/lexer_utils/KeyWordGroup/KeyWordManager/KeyWordManager.cpp
-        ./analisador_lexico/util/JsonWriter.cpp
-
-        ${FLEX_OUTPUT_FILE}
-        ./analisador_lexico/entities/Token.h
-        ./analisador_lexico/entities/TokenAnalisys.h
-        ./analisador_lexico/lexer_utils/KeyWordGroup/ClassStereotypeKeywords/ClassStereotypeKeywords.h
-        analisador_lexico/lexer_utils/KeyWordGroup/KeyWordManager/KeyWordManager.h
-        ./analisador_lexico/lexer_utils/KeyWordGroup/MetaAttributeKeywords/MetaAttributeKeywords.h
-        ./analisador_lexico/lexer_utils/KeyWordGroup/NativeTypeKeywords/NativeTypeKeywords.h
-        ./analisador_lexico/lexer_utils/KeyWordGroup/RelationStereotypeKeywords/RelationStereotypeKeywords.h
-        ./analisador_lexico/lexer_utils/KeyWordGroup/ReservedWordKeywords/ReservedWordKeywords.h
-        ./analisador_lexico/lexer_utils/KeyWordGroup/KeyWordGroup.h
-        ./analisador_lexico/lexer_utils/lex_config.h
-        ./analisador_lexico/util/JsonWriter.h
+        ${SOURCES}
+        ${LEXER_OUTPUT}
 )
 
-target_include_directories(tonto_lexer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# 7. Vincula a biblioteca do Flex ao seu executável.
+target_link_libraries(tonto_lexer ${FLEX_LIBRARIES})
 
-target_include_directories(tonto_lexer PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+# Mensagem para o desenvolvedor
+message(STATUS "Build do tonto_lexer configurada com sucesso.")
