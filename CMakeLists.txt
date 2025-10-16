@@ -26,17 +26,24 @@ file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_executable(tonto_lexer
         main.cpp
+        ./analisador_lexico/entities/Token.cpp
+        ./analisador_lexico/entities/TokenAnalisys.cpp
+        ./analisador_lexico/lexer_utils/lex_config.cpp
+        ./analisador_lexico/lexer_utils/KeyWordGroup/KeyWordManager/KeyWordManager.cpp
+        ./analisador_lexico/util/JsonWriter.cpp
+
         ${FLEX_OUTPUT_FILE}
-        analisador_lexico/entities/Token.h
-        analisador_lexico/entities/Token.cpp
-        analisador_lexico/lexer_utils/KeywordManager.cpp
-        analisador_lexico/lexer_utils/KeywordManager.cpp
-        analisador_lexico/lexer_utils/KeywordManager.h
-        analisador_lexico/lexer_utils/lex_config.cpp
-        analisador_lexico/util/JsonWriter.h
-        analisador_lexico/util/JsonWriter.cpp
-        analisador_lexico/entities/TokenAnalisys.cpp
-        analisador_lexico/entities/TokenAnalisys.h
+        ./analisador_lexico/entities/Token.h
+        ./analisador_lexico/entities/TokenAnalisys.h
+        ./analisador_lexico/lexer_utils/KeyWordGroup/ClassStereotypeKeywords/ClassStereotypeKeywords.h
+        analisador_lexico/lexer_utils/KeyWordGroup/KeyWordManager/KeyWordManager.h
+        ./analisador_lexico/lexer_utils/KeyWordGroup/MetaAttributeKeywords/MetaAttributeKeywords.h
+        ./analisador_lexico/lexer_utils/KeyWordGroup/NativeTypeKeywords/NativeTypeKeywords.h
+        ./analisador_lexico/lexer_utils/KeyWordGroup/RelationStereotypeKeywords/RelationStereotypeKeywords.h
+        ./analisador_lexico/lexer_utils/KeyWordGroup/ReservedWordKeywords/ReservedWordKeywords.h
+        ./analisador_lexico/lexer_utils/KeyWordGroup/KeyWordGroup.h
+        ./analisador_lexico/lexer_utils/lex_config.h
+        ./analisador_lexico/util/JsonWriter.h
 )
 
 target_include_directories(tonto_lexer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
