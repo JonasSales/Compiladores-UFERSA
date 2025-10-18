@@ -21,6 +21,7 @@ string tokenToString(const TokenType type) {
         case TokenType::SYMBOL:               return "SYMBOL";
         case TokenType::UNKNOWN:              return "UNKNOWN";
         case TokenType::CARDINALITY:          return "CARDINALITY";
+        case TokenType::RELATION:             return "RELATION";
         default:                              return "EOF";
     }
 }

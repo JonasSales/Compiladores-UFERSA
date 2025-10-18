@@ -20,7 +20,7 @@ UNDERLINE       "_"
 SPECIALSYMBOLS  [{}()]
 
 CLASS_NAME      {UPPERCASE}({LETTER}|{UNDERLINE})*
-RELATION_NAME   {LOWERCASE}({LETTER}|{UNDERLINE}|-)*
+RELATION_NAME   ("@"|{LOWERCASE})({LETTER}|{UNDERLINE}|-)*
 INSTANCE_NAME   {LETTER}({LETTER}|{DIGIT}|{UNDERLINE})*{DIGIT}+
 DATATYPE_NAME   {LETTER}+"DataType"
 
@@ -90,7 +90,7 @@ Token token = {yylineno, column, TokenType::CARDINALITY, yytext};
 }
 
 "<>--"|"--<>"|"<>"|".."|"--"|"..."|"<o>--" {
-    Token token = {yylineno, column, TokenType::SYMBOL, yytext};
+    Token token = {yylineno, column, TokenType::RELATION, yytext};
     tokens.emplace(token.getContador(), token);
     column+= yyleng;
 }

@@ -21,7 +21,8 @@ public:
             {"import", TokenType::RESERVED_WORD},
             {"functional-complexes", TokenType::RESERVED_WORD},
             {"intrinsic-modes", TokenType::RESERVED_WORD},
-            {"disjoint_complete", TokenType::RESERVED_WORD}
+            {"disjoint_complete", TokenType::RESERVED_WORD},
+            {"has", TokenType::RESERVED_WORD},
         };
     }
 };
