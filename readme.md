@@ -32,18 +32,15 @@ Funções auxiliares escrever os arquivos .json
 ## testes
 Pasta para armazenar os arquivos .tonto para os testes e .json com os resultados dos testes
 
-
-# Pré-requisitos
-- C++ 17 ou mais recente
-- CMake 3.10 ou mais recente
-- Git instalado
 # Preparar ambiente
 
-Abra o termina
+Abra o terminal
 
 Instale dependências
 
 ```bash
+  sudo apt install git
+  sudo apt install build-essentials
   sudo apt update
   sudo apt upgrade
   sudo apt install g++ gdb
@@ -71,13 +68,7 @@ Vá para o diretório do projeto
 cd testes/
 ```
 
-- Abra o arquivo teste.tonto e cole o código a ser testado nele
-
-```bash
-  open teste.tonto
-```
-
-Feche o editor de texto e volte para o terminal
+- Abra o arquivo teste.tonto na pasta testes e cole o texto de teste
 
 ```bash
   cd ..
