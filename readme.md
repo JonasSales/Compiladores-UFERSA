@@ -89,7 +89,7 @@ Rodar teste
   ./cmake-build-debug/tonto_lexer testes/teste.tonto
 ```
 
-Após a compilação, os arquivos .json com a análise do código estarão na par
+Após a compilação, os arquivos .json com a análise do código estarão na parsta testes com os seguintes nomes: 
 
 ## lexerTokenAnalisys.json
 Mapeamento um a um dos tokens gerados com os atributos
