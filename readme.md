@@ -51,6 +51,7 @@ Instale dependências
 Clone o projeto
 
 ```bash
+  cd ~
   git clone https://github.com/JonasSales/Compiladores-UFERSA.git
 ```
 
