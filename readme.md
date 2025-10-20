@@ -40,12 +40,12 @@ Instale dependências
 
 ```bash
   sudo apt install git
-  sudo apt install build-essentials
-  sudo apt update
-  sudo apt upgrade
+  sudo apt install build-essential
   sudo apt install g++ gdb
   sudo apt install make cmake
-  sudo apt install flex 
+  sudo apt install flex
+  sudo apt update
+  sudo apt upgrade 
 ```
 
 Clone o projeto
