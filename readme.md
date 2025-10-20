@@ -51,7 +51,7 @@ Instale dependências
 Clone o projeto
 
 ```bash
-  git clone (https://github.com/JonasSales/Compiladores-UFERSA.git)
+  git clone https://github.com/JonasSales/Compiladores-UFERSA.git
 ```
 
 Vá para o diretório do projeto
@@ -79,7 +79,7 @@ Configure o CMake para criar as pastas necessárias para o projeto
 Compilar o código fonte
 
 ```bash
-  cmake --build cmake-build-debug
+  mkdir cmake-build-debug && cd cmake-build-debug && cmake .. && cmake --build . && cd ..
 ```
 
 Rodar teste
