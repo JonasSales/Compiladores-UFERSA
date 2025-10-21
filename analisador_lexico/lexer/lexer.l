@@ -77,6 +77,13 @@ Token token = {yylineno, column, TokenType::CARDINALITY, yytext};
     column+= yyleng;
 }
 
+{LETTER}({LETTER}|{DIGIT}|{UNDERLINE})* {
+    fprintf(stderr, "[ERRO LÉXICO] Linha %d, Coluna %d: Identificador mal formado: '%s'.\n", yylineno, column, yytext);
+    Token token = {yylineno, column, TokenType::UNKNOWN, yytext};
+    tokens.emplace(token.getContador(), token);
+    column+= yyleng;
+}
+
 {NUMBER} {
     Token token = {yylineno, column, TokenType::NUMBER, yytext};
     tokens.emplace(token.getContador(), token);
