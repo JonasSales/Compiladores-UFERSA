@@ -66,7 +66,7 @@ Vá para o diretório do projeto
 
 - Para rodar o projeto, abra a pasta teste na raiz do projeto
 ```bash
-cd testes/
+  cd testes/
 ```
 
 - Abra o arquivo teste.tonto na pasta testes e cole o texto de teste
