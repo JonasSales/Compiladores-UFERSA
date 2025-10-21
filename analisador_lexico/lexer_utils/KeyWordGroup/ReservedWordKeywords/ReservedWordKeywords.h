@@ -23,6 +23,7 @@ public:
             {"intrinsic-modes", TokenType::RESERVED_WORD},
             {"disjoint_complete", TokenType::RESERVED_WORD},
             {"has", TokenType::RESERVED_WORD},
+            {"specializes", TokenType::RESERVED_WORD},
         };
     }
 };
