@@ -39,18 +39,19 @@ Abra o terminal
 Instale dependências
 
 ```bash
+  sudo apt update
+  sudo apt upgrade 
   sudo apt install git
   sudo apt install build-essential
   sudo apt install g++ gdb
   sudo apt install make cmake
   sudo apt install flex
-  sudo apt update
-  sudo apt upgrade 
 ```
 
 Clone o projeto
 
 ```bash
+  cd ~
   git clone https://github.com/JonasSales/Compiladores-UFERSA.git
 ```
 
@@ -65,7 +66,7 @@ Vá para o diretório do projeto
 
 - Para rodar o projeto, abra a pasta teste na raiz do projeto
 ```bash
-cd testes/
+  cd testes/
 ```
 
 - Abra o arquivo teste.tonto na pasta testes e cole o texto de teste
@@ -88,7 +89,7 @@ Rodar teste
   ./cmake-build-debug/tonto_lexer testes/teste.tonto
 ```
 
-Após a compilação, os arquivos .json com a análise do código estarão na par
+Após a compilação, os arquivos .json com a análise do código estarão na pasta testes com os seguintes nomes: 
 
 ## lexerTokenAnalisys.json
 Mapeamento um a um dos tokens gerados com os atributos
