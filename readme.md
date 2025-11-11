@@ -1,52 +1,38 @@
+# Compiladores: Analisador Léxico para a Linguagem TONTO
 
-# Compiladores
-Projeto do analisador léxico para a linguagem Tonto
+Este projeto é um analisador léxico (lexer) para a linguagem de modelagem de ontologias "TONTO". O analisador é implementado em C++ e Flex, com o build gerenciado pelo CMake.
 
-
-# Autores
+## Autores
 
 - [@Jonas Sales](https://www.github.com/JonasSales)
 - [@Guilherme Melo](https://github.com/glhermeMelo)
 
+## Visão Geral do Projeto
 
-# Estrutura do projeto
-Separados em pastas com os nomes
+O objetivo deste projeto é processar arquivos-fonte escritos na linguagem `.tonto` e convertê-los em uma sequência de tokens. A lógica é dividida nos seguintes componentes:
 
-## analisador_lexico
-Regra de negócio do analisador léxico
+* **Lexer (Flex)**: O arquivo `analisador_lexico/lexer/lexer.l` define as expressões regulares para reconhecer os blocos básicos da linguagem (palavras-chave, identificadores, números, strings, símbolos, etc.).
+* **Gerenciador de Palavras-Chave**: Um sistema (em `analisador_lexico/lexer_utils/KeyWordGroup`) é usado para classificar identificadores. Por exemplo, o lexer pode identificar `kind` como um `RELATION_NAME` genérico, e este gerenciador o reclassifica corretamente como `CLASS_STEREOTYPE`.
+* **Entidades**: A classe `Token` (em `analisador_lexico/entities/`) armazena as informações de cada token, como linha, coluna, tipo e lexema.
+* **Saída JSON**: O programa gera dois arquivos JSON como saída, localizados na pasta `testes/`:
+    1.  `lexerTokenAnalisys.json`: Um log detalhado de *todos* os tokens encontrados, um a um, com suas posições.
+    2.  `lexerTokenCount.json`: Uma **tabela de síntese** que agrupa os tokens por tipo, mostrando a contagem total e uma lista de lexemas **únicos** encontrados para cada tipo.
 
-### entities
-Classe Token (.cpp e .h) para a criação dos tokens
+## Estrutura do projeto
 
-### lexer
-Lexer está localizado nesta pastas
+O projeto é organizado nas seguintes pastas:
 
-### lexer_utils
+* **/analisador_lexico**: Contém toda a regra de negócio do analisador.
+    * **/entities**: Classes que representam as entidades do projeto, como `Token` e `TokenAnalisys`.
+    * **/lexer**: Arquivo `lexer.l` com a definição das regras do Flex.
+    * **/lexer_utils**: Arquivos de configuração e o gerenciador de palavras-chave.
+    * **/util**: Funções auxiliares para escrever os arquivos de saída `.json`.
+* **/testes**: Pasta para armazenar os arquivos `.tonto` de entrada e os `.json` de saída.
+* **/cmake-build-debug**: Pasta gerada pelo CMake que contém os executáveis (ignorada pelo `.gitignore`).
 
-- keyword_group (pasta para armazenar as classes para cada tipo de token)
-- lex_config (enum com os tipos de token, mapa para armazenar tokens e função tokenToString para coverter o enum em uma string)
+## Como Preparar o Ambiente
 
-### util
-Funções auxiliares escrever os arquivos .json
-
-## testes
-Pasta para armazenar os arquivos .tonto para os testes e .json com os resultados dos testes
-
-# Preparar ambiente
-
-Abra o terminal
-
-Instale dependências
-
-```bash
-  sudo apt update
-  sudo apt upgrade 
-  sudo apt install git
-  sudo apt install build-essential
-  sudo apt install g++ gdb
-  sudo apt install make cmake
-  sudo apt install flex
-```
+Abra um terminal e instale as dependências necessárias para o build:
 
 Clone o projeto
 
@@ -89,7 +75,7 @@ Rodar teste
   ./cmake-build-debug/tonto_lexer testes/teste.tonto
 ```
 
-Após a compilação, os arquivos .json com a análise do código estarão na pasta testes com os seguintes nomes: 
+Após a compilação, os arquivos .json com a análise do código estarão na pasta testes com os seguintes nomes:
 
 ## lexerTokenAnalisys.json
 Mapeamento um a um dos tokens gerados com os atributos
