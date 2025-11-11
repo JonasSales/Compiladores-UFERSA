@@ -30,7 +30,7 @@ void writeTokenList(const string &filename, const map<int, Token> &tokens) {
     fout << "[" << endl;
 
     for (auto it = tokens.begin(); it != tokens.end(); ++it) {
-        const auto& token = it->second; // Pega o objeto Token do par (chave, valor)
+        const auto& token = it->second;
 
         fout << "  {" << endl;
         fout << "    \"id\": " << token.getContador() << "," << endl;
@@ -48,12 +48,9 @@ void writeTokenList(const string &filename, const map<int, Token> &tokens) {
 
     fout << "]" << endl;
 
-    //Popula o mapa para imprimir a analise dos Tokens
-    for (const auto& pair : tokens) {                                     
-        const auto& token = pair.second;                                  
-        tokenAnalisys.addToken(token.getTokenType(), token.getLexeme());
+    for (const auto& pair : tokens) {
+        tokenAnalisys.addToken(pair.second.getTokenType(), pair.second.getLexeme());
     }
-    
     fout.close();
 }
 
@@ -76,13 +73,12 @@ void writeTokenAnalysis(const string &filename, const TokenAnalisys &result) {
         fout << "      \"count\": " << currentCount << "," << endl;
         fout << "      \"tokens\": [" << endl;
 
-        auto listIt = result.tokenList.find(currentType);
-
-        if (listIt != result.tokenList.end()) {
-            const auto& tokenList = listIt->second;
-            for (size_t i = 0; i < tokenList.size(); ++i) {
-                fout << "        \"" << escapeJson(tokenList[i]) << "\"";
-                if (i < tokenList.size() - 1) {
+        auto listIt = result.uniqueLexemes.find(currentType);
+        if (listIt != result.uniqueLexemes.end()) {
+            const auto& uniqueTokenSet = listIt->second;
+            for (auto set_it = uniqueTokenSet.begin(); set_it != uniqueTokenSet.end(); ++set_it) {
+                fout << "        \"" << escapeJson(*set_it) << "\"";
+                if (next(set_it) != uniqueTokenSet.end()) {
                     fout << ",";
                 }
                 fout << endl;
