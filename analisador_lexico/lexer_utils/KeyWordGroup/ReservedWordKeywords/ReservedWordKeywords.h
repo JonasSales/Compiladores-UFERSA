@@ -7,7 +7,7 @@
 
 #include "../KeyWordGroup.h"
 
-class ReservedWordKeywords : public KeywordGroup {
+class ReservedWordKeywords final : public KeywordGroup {
 public:
     void initialize() override {
         keywords = {
@@ -24,6 +24,9 @@ public:
             {"disjoint_complete", TokenType::RESERVED_WORD},
             {"has", TokenType::RESERVED_WORD},
             {"specializes", TokenType::RESERVED_WORD},
+            {"datatype", TokenType::RESERVED_WORD}, // [cite: 61]
+            {"enum", TokenType::RESERVED_WORD},     // [cite: 69]
+            {"relation", TokenType::RESERVED_WORD}  // [cite: 100]
         };
     }
 };
