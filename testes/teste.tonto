@@ -1,116 +1,107 @@
-import alergiaalimentar
+import TDAH
 
-package alergiaalimentar
+package TDAH
 
-kind Paciente
+category Hyperactivity_Symptom
 
-kind Alimento
+category Neurologically_Based_Condition specializes Medical_Condition 
 
-subkind Proteina of functional-complexes  specializes Componente_Alimentar 
+mixin Medical_Condition 
 
-phase Crianca of functional-complexes  specializes Paciente 
+category Inattention_Symptom 
 
-phase Adulto of functional-complexes  specializes Paciente 
+role Patient specializes Person 
 
-subkind Aditivo_Alimentar of functional-complexes  specializes Componente_Alimentar 
+relator Medical_Report
 
-subkind Carboidrato of functional-complexes  specializes Componente_Alimentar 
+role Doctor specializes Person 
 
-subkind Imuno_Mediada of relators  specializes Alergia 
+kind Person
 
-subkind Nao_Imuno_Mediada of relators  specializes Alergia 
+mode Behavioral_Therapy
 
-mode Sintoma
+mode Medication_Therapy
 
-subkind Cutaneo of intrinsic-modes  specializes Sintoma 
+subkind Methylphenidate_ specializes Medicine 
 
-subkind Gastrointestinal of intrinsic-modes  specializes Sintoma 
+subkind Dextroamphetamine_ specializes Medicine 
 
-subkind Respiratorio of intrinsic-modes  specializes Sintoma 
+relator Prescription
 
-subkind Sistemico of intrinsic-modes  specializes Sintoma 
+phase Preschool_Age specializes Patient 
 
-role Alergeno of functional-complexes  specializes Componente_Alimentar 
+phase School_Age specializes Patient 
 
-relator Tratamento
+phase Teenager specializes Patient 
 
-relator Diagnostico
+phase Adult specializes Patient 
 
-subkind Mista of relators  specializes Alergia 
+quality Birth_Sex
 
-kind Profissional_de_Saude
+kind Medicine
 
-subkind Ingrediente of functional-complexes  specializes Alimento 
+role Psychologist specializes Person 
 
-subkind Formula of functional-complexes  specializes Alimento 
+kind Criterion_B
 
-subkind Teste_de_Dosagem_IgE_Serica of functional-complexes  specializes Procedimento 
+kind Criterion_C
 
-subkind Teste_de_Provocacao_Oral of functional-complexes  specializes Procedimento 
+kind Criterion_D
 
-kind Procedimento
+kind Criterion_E
 
-subkind Dieta_de_Exclusao of relators  specializes Tratamento 
+kind Criterion_A1a specializes Hyperactivity_Symptom 
 
-subkind Medicamento of relators  specializes Tratamento 
+kind Criterion_A1b specializes Hyperactivity_Symptom 
 
-subkind Imunoterapia_Oral of relators  specializes Tratamento 
+kind Criterion_A1c specializes Hyperactivity_Symptom 
 
-quality Comobidarde_Alergica
+kind Criterion_A1d specializes Hyperactivity_Symptom 
 
-quality Heranca_Genetica
+kind Criterion_A1e specializes Hyperactivity_Symptom 
 
-event Reacao_Cruzada specializes Reacao_Adversa 
+kind Criterion_A1f specializes Hyperactivity_Symptom 
 
-relator Alergia
+kind Criterion_A1g specializes Hyperactivity_Symptom 
 
-event Reacao_Adversa
+kind Criterion_A1h specializes Hyperactivity_Symptom 
 
-kind Componente_Alimentar
+kind Criterion_A1i specializes Hyperactivity_Symptom 
 
-event Consumo_Alimentar
+kind Criterion_A2a specializes Inattention_Symptom 
 
-subkind Teste_Cutaneo of functional-complexes  specializes Procedimento 
+kind Criterion_A2b specializes Inattention_Symptom 
 
-mode Disposicao_Alergica
+kind Criterion_A2c specializes Inattention_Symptom 
 
-situation Exposicao_ao_Alergeno
+kind Criterion_A2d specializes Inattention_Symptom 
 
-relator Avaliacao_de_Risco
+kind Criterion_A2e specializes Inattention_Symptom 
 
-quality Nivel_de_Risco
+kind Criterion_A2f specializes Inattention_Symptom 
 
-genset disjoint_complete {
-    general Componente_Alimentar
-    specifics Proteina, Aditivo_Alimentar, Carboidrato
+kind Criterion_A2g specializes Inattention_Symptom 
+
+kind Criterion_A2h specializes Inattention_Symptom 
+
+kind Criterion_A2i specializes Inattention_Symptom 
+
+quality Severity
+
+subkind Criterion_A1 specializes Criterion_A 
+
+subkind Criterion_A2 specializes Criterion_A 
+
+kind Criterion_A
+
+kind ADHD specializes Neurologically_Based_Condition 
+
+disjoint complete genset TypesOfMedicine {
+    general Medicine
+    specifics Dextroamphetamine_, Methylphenidate_
 }
 
-genset disjoint_complete {
-    general Alergia
-    specifics Imuno_Mediada, Mista, Nao_Imuno_Mediada
-}
-
-genset disjoint_complete {
-    general Sintoma
-    specifics Respiratorio, Sistemico, Gastrointestinal, Cutaneo
-}
-
-genset disjoint_complete {
-    general Procedimento
-    specifics Teste_Cutaneo, Teste_de_Dosagem_IgE_Serica, Teste_de_Provocacao_Oral
-}
-
-genset disjoint_complete {
-    general Alimento
-    specifics Formula, Ingrediente
-}
-
-genset disjoint_complete {
-    general Paciente
-    specifics Crianca, Adulto
-}
-
-genset disjoint_complete {
-    general Tratamento
-    specifics Imunoterapia_Oral, Medicamento, Dieta_de_Exclusao
+disjoint complete genset PhasesOfAPatient{
+    general Patient
+    specifics Preschool_Age, School_Age, Adult, Teenager
 }
