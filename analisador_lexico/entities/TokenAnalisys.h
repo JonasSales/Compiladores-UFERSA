@@ -19,6 +19,7 @@ public:
     map<TokenType, int> tokenTypeCount;
     map<string, int> lexemeCount;
     map<TokenType, vector<string>> tokenList;
+    map<TokenType, set<string>> uniqueLexemes;
 
     void addToken(TokenType type, const string& lexeme);
 };

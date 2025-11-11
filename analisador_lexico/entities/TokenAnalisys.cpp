@@ -12,4 +12,5 @@ void TokenAnalisys::addToken(TokenType type, const string &lexeme) {
     incrementTokenCount(type);
     incrementLexemeCount(lexeme);
     tokenList[type].push_back(lexeme);
+    uniqueLexemes[type].insert(lexeme);
 }
