@@ -1,4 +1,5 @@
 #include "Token.h"
+#include <utility>
 #include "../lexer_utils/lex_config.h"
 
 int Token::contador = 1;
@@ -42,7 +43,7 @@ std::string Token::getLexeme() const {
 }
 
 void Token::setLexeme(std::string lexeme) {
-    this->lexeme = lexeme;
+    this->lexeme = std::move(lexeme);
 }
 
 int Token::getContador() const {
