@@ -23,6 +23,8 @@ file(GLOB_RECURSE SOURCES
         "main.cpp"
         "analisador_lexico/*.h"
         "analisador_lexico/*.cpp"
+        "analisador_sintatico/*.cpp"
+        "analisador_sintatico/*.h"
 )
 
 # 5. Adiciona o diretório principal ao caminho de includes.
