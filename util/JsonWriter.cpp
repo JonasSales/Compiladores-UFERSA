@@ -1,6 +1,6 @@
 #include "JsonWriter.h"
 #include "analisador_lexico/entities/TokenAnalisys.h"
-#include "../../analisador_sintatico/Parser.h"
+#include "analisador_sintatico/Parser.h"
 
 string escapeJson(const string& s) {
     string escaped;

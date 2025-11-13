@@ -21,6 +21,8 @@ add_custom_command(
 # 4. Encontra todos os arquivos .h e .cpp recursivamente.
 file(GLOB_RECURSE SOURCES
         "main.cpp"
+        "util/*.h"
+        "util/*.cpp"
         "analisador_lexico/*.h"
         "analisador_lexico/*.cpp"
         "analisador_sintatico/*.cpp"

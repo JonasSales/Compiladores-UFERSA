@@ -3,7 +3,7 @@
 #include <filesystem>
 #include "FlexLexer.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
-#include "analisador_lexico/util/JsonWriter.h"
+#include "util/JsonWriter.h"
 #include "analisador_sintatico/Parser.h"
 
 using std::ifstream;
