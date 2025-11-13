@@ -13,7 +13,7 @@ KeyWordManager::KeyWordManager() {
     groups.emplace_back(std::make_unique<NativeTypeKeywords>());
     groups.emplace_back(std::make_unique<MetaAttributeKeywords>());
 
-    for (auto& g : groups)
+    for (const auto& g : groups)
         g->initialize();
 }
 
