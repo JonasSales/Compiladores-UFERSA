@@ -1,21 +1,77 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include <vector>
 #include "FlexLexer.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
 #include "util/JsonWriter.h"
-#include "analisador_sintatico/Parser.h"
 
-using std::ifstream;
-using std::ofstream;
-using std::string;
-using std::endl;
-using std::cerr;
-using std::streambuf;
-using std::cin;
-using std::cout;
+#include "parser.hpp"
 
-class yyFlexLexer;
+using namespace std;
+
+
+// Iterador para percorrer o mapa de tokens gerado pelo Lexer
+map<int, Token>::iterator currentTokenIt;
+map<int, Token>::iterator endTokenIt;
+
+// --- IMPLEMENTAÇÃO DO YYLEX (O ADAPTER) ---
+// Esta função é chamada automaticamente pelo parser.parse()
+yy::parser::symbol_type yylex() {
+    if (currentTokenIt == endTokenIt) {
+        return yy::parser::make_END_OF_FILE();
+    }
+
+    Token token = currentTokenIt->second;
+    TokenType type = token.getTokenType();
+    string lexeme = token.getLexeme();
+
+    // Avança o iterador para a próxima chamada
+    currentTokenIt++;
+
+    // Mapeamento: TokenType (Seu Enum) -> Token do Bison (parser.y)
+    switch (type) {
+        case TokenType::CLASS_NAME:
+            return yy::parser::make_CLASS_NAME(lexeme);
+        case TokenType::RELATION_NAME:
+            return yy::parser::make_RELATION_NAME(lexeme);
+        case TokenType::CLASS_STEREOTYPE:
+            return yy::parser::make_CLASS_STEREOTYPE(lexeme);
+        case TokenType::NATIVE_DATA_TYPE:
+            return yy::parser::make_NATIVE_DATA_TYPE(lexeme);
+        case TokenType::SYMBOL:
+            if (lexeme == "{") return yy::parser::make_LBRACE();
+            if (lexeme == "}") return yy::parser::make_RBRACE();
+            if (lexeme == ":") return yy::parser::make_COLON();
+            if (lexeme == ",") return yy::parser::make_COMMA();
+            break;
+
+        case TokenType::RESERVED_WORD:
+            // O seu Lexer agrupa tudo como RESERVED_WORD. O Bison precisa saber qual é.
+            if (lexeme == "package") return yy::parser::make_PACKAGE();
+            if (lexeme == "import") return yy::parser::make_IMPORT();
+            if (lexeme == "genset") return yy::parser::make_GENSET();
+            if (lexeme == "disjoint") return yy::parser::make_DISJOINT();
+            if (lexeme == "complete") return yy::parser::make_COMPLETE();
+            if (lexeme == "general") return yy::parser::make_GENERAL();
+            if (lexeme == "specifics") return yy::parser::make_SPECIFICS();
+            if (lexeme == "specializes") return yy::parser::make_SPECIALIZES();
+            if (lexeme == "datatype") return yy::parser::make_DATATYPE();
+            if (lexeme == "enum") return yy::parser::make_ENUM();
+            if (lexeme == "relation") return yy::parser::make_RELATION();
+            break;
+
+        case TokenType::END_OF_FILE:
+             return yy::parser::make_END_OF_FILE();
+
+        // Adicione outros casos conforme necessário (NUMBER, STRING, etc)
+        default:
+            break;
+    }
+
+    // Se não reconheceu, retorna EOF ou lança erro (aqui retornando EOF por segurança)
+    return yy::parser::make_END_OF_FILE();
+}
 
 int main(int argc, char* argv[]) {
 
@@ -30,38 +86,37 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Cria a pasta "teste" se não existir
     std::filesystem::create_directory("testes");
-
-    // Nome dos arquivos de saída dentro da pasta "teste"
-    string filename = std::filesystem::path(argv[1]).filename().string();
-
-    //Nome do arquivo para a lista de Tokens
     string listOutName = "testes/lexerTokenAnalisys.json";
     string analisysOutName = "testes/lexerTokenCount.json";
-    // --- SAIDA DO NOVO ANALISADOR SINTATICO ---
-    string syntaxOutName = "testes/syntaxAnalisys.json"; // <-- 2. NOVO ARQUIVO DE SAIDA SINTATICO
 
+    // 1. EXECUÇÃO DO LEXER (Fase Sequencial 1)
+    // Mantém a sua lógica original: roda o Flex, popula o map 'tokens'
     streambuf* old_cin = cin.rdbuf(in.rdbuf());
-
     yyFlexLexer lexer;
-    lexer.yylex(); // <-- O LEXICO RODA E POPULA O MAPA 'tokens'
-
+    lexer.yylex();
     cin.rdbuf(old_cin);
 
-    // Escreve a saída do léxico (como antes)
+    // Gera os JSONs (Requisito mantido)
     writeTokenList(listOutName, tokens);
     writeTokenAnalysis(analisysOutName, tokenAnalisys);
-    cout << "Analise lexica salva em " << listOutName << " e " << analisysOutName << endl;
+    cout << "Analise lexica concluida." << endl;
 
-    // --- 3. EXECUTAR O ANALISADOR SINTATICO ---
-    cout << "Iniciando analise sintatica..." << endl;
-    Parser parser(tokens); // <-- O parser e alimentado com a saida do lexico
-    parser.parse();        // <-- O parser consome os tokens
+    // 2. PREPARAÇÃO PARA O PARSER (A Ponte)
+    // Inicializa os iteradores que o yylex() vai usar
+    currentTokenIt = tokens.begin();
+    endTokenIt = tokens.end();
 
-    // --- 4. ESCREVER A SAIDA SINTATICA ---
-    writeSyntaxAnalysis(syntaxOutName, parser);
-    cout << "Analise sintatica (Tabela de Sintese e Erros) salva em " << syntaxOutName << endl;
+    // 3. EXECUÇÃO DO PARSER BISON (Fase Sequencial 2)
+    cout << "Iniciando analise sintatica com Bison..." << endl;
+    yy::parser parser;
+    int res = parser.parse();
+
+    if (res == 0) {
+        cout << "Analise sintatica (Bison) concluida com sucesso!" << endl;
+    } else {
+        cerr << "Falha na analise sintatica." << endl;
+    }
 
     return 0;
 }

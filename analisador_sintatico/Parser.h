@@ -1,12 +1,9 @@
 #ifndef COMPILADORESUFERSA_PARSER_H
 #define COMPILADORESUFERSA_PARSER_H
 
-#include "analisador_lexico/entities/Token.h"
-#include <map>
 #include <vector>
 #include <string>
 
-using std::map;
 using std::vector;
 using std::string;
 
@@ -28,7 +25,6 @@ struct SinteseClasse {
     string pacote;
     string herdaDe;
     vector<SinteseAtributo> atributos;
-    // (Pode-se adicionar 'vector<SinteseRelacao> relacoesInternas' aqui)
 };
 
 struct SinteseGenset {
@@ -61,34 +57,9 @@ struct SinteseRelacao {
     string simboloRelacao;
 };
 
-
 class Parser {
-private:
-    vector<Token> tokenStream;
-    unsigned int currentTokenIndex;
-
-    // Funções de utilidade do Parser
-    [[nodiscard]] Token lookAhead(int offset = 0) const;
-    Token consumeToken();
-    bool match(TokenType type);
-    bool match(TokenType type, const string& lexeme);
-
-    void addErro(const string& mensagem, const Token& tokenErrado);
-    void addErro(const string& mensagem);
-
-    // Funções de parsing para as regras do PDF
-    void parseProgram();
-    void parsePackageDecl();
-    void parseClassDecl();
-    SinteseAtributo parseAttributeDecl();
-    void parseGeneralizationSet();
-    void parseDatatypeDecl();
-    void parseEnumDecl();
-    void parseExternalRelationDecl();
-    // void parseInternalRelationDecl(SinteseClasse& classe); // (Stub)
-
 public:
-    string pacoteAtual;
+    string pacoteAtual = "default";
     vector<string> pacotesEncontrados;
     vector<SinteseClasse> classesEncontradas;
     vector<SinteseGenset> gensetsEncontrados;
@@ -97,8 +68,11 @@ public:
     vector<SinteseRelacao> relacoesExternasEncontradas;
     vector<SinteseErro> errosSintaticos;
 
-    explicit Parser(const map<int, Token>& tokens);
-    void parse();
+    Parser() = default;
+
+    void addErro(int l, int c, const string& msg) {
+        errosSintaticos.push_back({l, c, msg});
+    }
 };
 
 #endif //COMPILADORESUFERSA_PARSER_H
