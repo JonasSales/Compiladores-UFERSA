@@ -70,7 +70,7 @@ public:
 
     Parser() = default;
 
-    void addErro(int l, int c, const string& msg) {
+    void addErro(const int l, const int c, const string& msg) {
         errosSintaticos.push_back({l, c, msg});
     }
 };
