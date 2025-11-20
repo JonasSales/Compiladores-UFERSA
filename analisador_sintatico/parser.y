@@ -10,38 +10,36 @@
     #include <string>
     #include <vector>
     #include <iostream>
+    #include "analisador_sintatico/Parser.h"
 }
 
 %code {
     #include "analisador_lexico/lexer_utils/lex_config.h"
+
     yy::parser::symbol_type yylex();
+
+    extern Parser parserData;
 }
 
-/* -------------------- TOKENS -------------------- */
-
-%token <std::string> CLASS_NAME RELATION_NAME
+%token <std::string> CLASS_NAME RELATION_NAME INSTANCE_NAME DATATYPE_NAME
 %token <std::string> STRING NUMBER
 %token <std::string> CLASS_STEREOTYPE RELATION_STEREOTYPE
 %token <std::string> NATIVE_DATA_TYPE
-%token <std::string> DATATYPE_NAME
 
-/* Palavras reservadas */
 %token PACKAGE IMPORT GENSET DISJOINT COMPLETE GENERAL SPECIFICS
 %token SPECIALIZES DATATYPE ENUM RELATION
+%token LBRACE "{" RBRACE "}" COLON ":" COMMA "," END_OF_FILE 0 "EOF"
+%token META_ATTRIBUTE_START "meta{" META_ATTRIBUTE_END "meta}"
 
-/* Símbolos */
-%token LBRACE "{"
-%token RBRACE "}"
-%token COLON ":"
-%token COMMA ","
-%token END_OF_FILE 0 "EOF"
+%type <SinteseClasse> class_decl
+%type <std::vector<SinteseAtributo>> opt_body body_content
+%type <SinteseAtributo> attribute_decl
+%type <std::string> type_ref opt_specializes identifier
 
-/* Tipos de não-terminais */
-%type <std::string> package_decl
+%type <std::string> opt_disjoint opt_complete
 
 %%
 
-/* -------------------- REGRAS -------------------- */
 
 program:
     declarations_list
@@ -55,96 +53,134 @@ declarations_list:
 declaration:
       package_decl
     | import_decl
-    | class_decl
+    | class_decl {
+        // Ao terminar uma classe, salva no vetor global
+        parserData.classesEncontradas.push_back($1);
+      }
     | genset_decl
     | datatype_decl
     | enum_decl
     | relation_decl
     ;
 
-/* IMPORT */
-import_decl:
-    IMPORT CLASS_NAME {
-        std::cout << "BISON: Importando pacote: " << $2 << std::endl;
-    }
+// --- Regras Auxiliares ---
+identifier:
+    CLASS_NAME { $$ = $1; }
+    | INSTANCE_NAME { $$ = $1; }
     ;
 
-/* PACKAGE */
+// --- Package & Import ---
 package_decl:
-    PACKAGE CLASS_NAME {
-        std::cout << "BISON: Definindo pacote: " << $2 << std::endl;
+    PACKAGE identifier {
+        parserData.pacoteAtual = $2;
+        parserData.pacotesEncontrados.push_back($2);
+        std::cout << "BISON: Pacote " << $2 << std::endl;
     }
     ;
 
+import_decl:
+    IMPORT identifier { std::cout << "BISON: Import " << $2 << std::endl; }
+    ;
+
+// --- Classe ---
 class_decl:
-    CLASS_STEREOTYPE CLASS_NAME opt_specializes opt_body {
-        std::cout << "BISON: Classe encontrada (" << $1 << "): " << $2 << std::endl;
+    CLASS_STEREOTYPE identifier opt_specializes opt_body {
+        SinteseClasse novaClasse;
+        novaClasse.pacote = parserData.pacoteAtual;
+        novaClasse.estereotipo = $1;
+        novaClasse.nome = $2;
+        novaClasse.herdaDe = $3;
+        novaClasse.atributos = $4;
+        $$ = novaClasse; // Retorna a struct preenchida
+        std::cout << "BISON: Classe " << $2 << " (" << $1 << ")" << std::endl;
     }
     ;
 
 opt_specializes:
-    SPECIALIZES CLASS_NAME
-    | /* vazio */
+    SPECIALIZES identifier { $$ = $2; }
+    | /* vazio */ { $$ = ""; }
     ;
 
 opt_body:
-    "{" body_content "}"
-    | /* vazio */
+    "{" body_content "}" { $$ = $2; }
+    | /* vazio */ { $$ = std::vector<SinteseAtributo>(); }
     ;
 
 body_content:
-    body_content attribute_decl
-    | /* vazio */
+    body_content attribute_decl {
+        $1.push_back($2);
+        $$ = $1;
+    }
+    | /* vazio */ { $$ = std::vector<SinteseAtributo>(); }
     ;
 
 attribute_decl:
-    RELATION_NAME ":" type_ref opt_meta
-    ;
-
-opt_meta:
-    "{" "}"
-    | /* vazio */
+    RELATION_NAME ":" type_ref {
+        SinteseAtributo attr;
+        attr.nome = $1;
+        attr.tipo = $3;
+        // attr.metaAtributo = ... (Implementar parse de meta-atributos se necessário)
+        $$ = attr;
+    }
     ;
 
 type_ref:
-    CLASS_NAME
-    | NATIVE_DATA_TYPE
-    | DATATYPE_NAME
+    identifier { $$ = $1; }
+    | NATIVE_DATA_TYPE { $$ = $1; }
+    | DATATYPE_NAME { $$ = $1; }
     ;
 
-/* GENSET */
+// --- Genset ---
 genset_decl:
-    opt_disjoint opt_complete GENSET CLASS_NAME "{" GENERAL CLASS_NAME SPECIFICS class_list "}"
+    opt_disjoint opt_complete GENSET identifier "{" GENERAL identifier SPECIFICS class_list "}" {
+        SinteseGenset gs;
+        gs.nome = $4;
+        gs.classeGeral = $7;
+        // (Para ser completo, precisaria capturar 'class_list' num vector<string>,
+        // mas por enquanto vamos focar em compilar)
+        gs.isDisjoint = ($1 == "disjoint");
+        gs.isComplete = ($2 == "complete");
+        parserData.gensetsEncontrados.push_back(gs);
+        std::cout << "BISON: Genset " << $4 << std::endl;
+    }
     ;
 
-opt_disjoint: DISJOINT | /* vazio */;
-opt_complete: COMPLETE | /* vazio */;
+// Regras que agora retornam std::string explicitamente
+opt_disjoint:
+      DISJOINT { $$ = std::string("disjoint"); }
+    | /* vazio */ { $$ = std::string(""); }
+    ;
+
+opt_complete:
+      COMPLETE { $$ = std::string("complete"); }
+    | /* vazio */ { $$ = std::string(""); }
+    ;
 
 class_list:
-    class_list "," CLASS_NAME
-    | CLASS_NAME
+    class_list "," identifier
+    | identifier
     ;
 
-/* DATATYPE */
-datatype_decl:
-    DATATYPE CLASS_NAME "{" "}"
-    ;
+// --- Outros ---
+datatype_decl: DATATYPE identifier "{" "}" {
+    SinteseDatatype dt; dt.nome = $2; dt.pacote = parserData.pacoteAtual;
+    parserData.datatypesEncontrados.push_back(dt);
+};
 
-/* ENUM */
-enum_decl:
-    ENUM CLASS_NAME "{" class_list "}"
-    ;
+enum_decl: ENUM identifier "{" class_list "}" {
+    SinteseEnum en; en.nome = $2; en.pacote = parserData.pacoteAtual;
+    parserData.enumsEncontrados.push_back(en);
+};
 
-/* RELATION */
 relation_decl:
-    RELATION_STEREOTYPE RELATION CLASS_NAME
-    | RELATION_STEREOTYPE CLASS_NAME
+    RELATION_STEREOTYPE RELATION identifier { /* Lógica para relação nomeada */ }
+    | RELATION_STEREOTYPE identifier { /* Lógica para relação sem palavra 'relation' */ }
     ;
 
 %%
 
-/* -------------------- ERROS -------------------- */
-
 void yy::parser::error(const std::string& m) {
     std::cerr << "[ERRO SINTATICO BISON]: " << m << std::endl;
+    // Adiciona o erro na estrutura para sair no JSON final
+    parserData.addErro(0, 0, m);
 }

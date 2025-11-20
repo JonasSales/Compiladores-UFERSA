@@ -1,22 +1,20 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
-#include <vector>
 #include "FlexLexer.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
 #include "util/JsonWriter.h"
-
 #include "parser.hpp"
+#include "analisador_sintatico/Parser.h"
 
 using namespace std;
 
+Parser parserData;
 
-// Iterador para percorrer o mapa de tokens gerado pelo Lexer
 map<int, Token>::iterator currentTokenIt;
 map<int, Token>::iterator endTokenIt;
 
-// --- IMPLEMENTAÇÃO DO YYLEX (O ADAPTER) ---
-// Esta função é chamada automaticamente pelo parser.parse()
+// --- ADAPTER (YYLEX) ---
 yy::parser::symbol_type yylex() {
     if (currentTokenIt == endTokenIt) {
         return yy::parser::make_END_OF_FILE();
@@ -25,20 +23,26 @@ yy::parser::symbol_type yylex() {
     Token token = currentTokenIt->second;
     TokenType type = token.getTokenType();
     string lexeme = token.getLexeme();
-
-    // Avança o iterador para a próxima chamada
-    currentTokenIt++;
-
-    // Mapeamento: TokenType (Seu Enum) -> Token do Bison (parser.y)
+    ++currentTokenIt;
     switch (type) {
         case TokenType::CLASS_NAME:
             return yy::parser::make_CLASS_NAME(lexeme);
+
+        case TokenType::INSTANCE_NAME:
+            return yy::parser::make_INSTANCE_NAME(lexeme);
+
+        case TokenType::DATATYPE_NAME:
+            return yy::parser::make_DATATYPE_NAME(lexeme);
+
         case TokenType::RELATION_NAME:
             return yy::parser::make_RELATION_NAME(lexeme);
         case TokenType::CLASS_STEREOTYPE:
             return yy::parser::make_CLASS_STEREOTYPE(lexeme);
+        case TokenType::RELATION_STEREOTYPE:
+            return yy::parser::make_RELATION_STEREOTYPE(lexeme);
         case TokenType::NATIVE_DATA_TYPE:
             return yy::parser::make_NATIVE_DATA_TYPE(lexeme);
+
         case TokenType::SYMBOL:
             if (lexeme == "{") return yy::parser::make_LBRACE();
             if (lexeme == "}") return yy::parser::make_RBRACE();
@@ -47,7 +51,6 @@ yy::parser::symbol_type yylex() {
             break;
 
         case TokenType::RESERVED_WORD:
-            // O seu Lexer agrupa tudo como RESERVED_WORD. O Bison precisa saber qual é.
             if (lexeme == "package") return yy::parser::make_PACKAGE();
             if (lexeme == "import") return yy::parser::make_IMPORT();
             if (lexeme == "genset") return yy::parser::make_GENSET();
@@ -64,13 +67,10 @@ yy::parser::symbol_type yylex() {
         case TokenType::END_OF_FILE:
              return yy::parser::make_END_OF_FILE();
 
-        // Adicione outros casos conforme necessário (NUMBER, STRING, etc)
         default:
             break;
     }
-
-    // Se não reconheceu, retorna EOF ou lança erro (aqui retornando EOF por segurança)
-    return yy::parser::make_END_OF_FILE();
+    return yylex();
 }
 
 int main(int argc, char* argv[]) {
@@ -89,34 +89,28 @@ int main(int argc, char* argv[]) {
     std::filesystem::create_directory("testes");
     string listOutName = "testes/lexerTokenAnalisys.json";
     string analisysOutName = "testes/lexerTokenCount.json";
+    string syntaxOutName = "testes/syntaxAnalisys.json";
 
-    // 1. EXECUÇÃO DO LEXER (Fase Sequencial 1)
-    // Mantém a sua lógica original: roda o Flex, popula o map 'tokens'
+    // 1. Lexer
     streambuf* old_cin = cin.rdbuf(in.rdbuf());
     yyFlexLexer lexer;
     lexer.yylex();
     cin.rdbuf(old_cin);
 
-    // Gera os JSONs (Requisito mantido)
     writeTokenList(listOutName, tokens);
     writeTokenAnalysis(analisysOutName, tokenAnalisys);
     cout << "Analise lexica concluida." << endl;
 
-    // 2. PREPARAÇÃO PARA O PARSER (A Ponte)
-    // Inicializa os iteradores que o yylex() vai usar
+    // 2. Bison
     currentTokenIt = tokens.begin();
     endTokenIt = tokens.end();
 
-    // 3. EXECUÇÃO DO PARSER BISON (Fase Sequencial 2)
     cout << "Iniciando analise sintatica com Bison..." << endl;
     yy::parser parser;
-    int res = parser.parse();
+    parser.parse();
 
-    if (res == 0) {
-        cout << "Analise sintatica (Bison) concluida com sucesso!" << endl;
-    } else {
-        cerr << "Falha na analise sintatica." << endl;
-    }
+    writeSyntaxAnalysis(syntaxOutName, parserData);
+    cout << "Analise sintatica salva em " << syntaxOutName << endl;
 
     return 0;
 }
