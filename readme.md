@@ -66,13 +66,13 @@ Configure o CMake para criar as pastas necessárias para o projeto
 Compilar o código fonte
 
 ```bash
-  mkdir cmake-build-debug && cd cmake-build-debug && cmake .. && cmake --build . && cd ..
+mkdir -p build && cd build && cmake .. && make -j$(nproc)
 ```
 
 Rodar teste
 
 ```bash
-  ./cmake-build-debug/tonto_lexer testes/teste.tonto
+  ./tonto_lexer
 ```
 
 Após a compilação, os arquivos .json com a análise do código estarão na pasta testes com os seguintes nomes:

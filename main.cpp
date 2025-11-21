@@ -73,44 +73,103 @@ yy::parser::symbol_type yylex() {
     return yylex();
 }
 
-int main(int argc, char* argv[]) {
+static void processarArquivo(const std::filesystem::path &input) {
+    cout << "Processando " << input.string() << endl;
 
-    if (argc < 2) {
-        cerr << "Uso: " << argv[0] << " teste.tonto" << endl;
-        return 1;
+    // prepare output filenames in the same directory
+    std::filesystem::path parent = input.parent_path();
+    string base = input.stem().string();
+
+    std::filesystem::path lexerAnalysis = parent / (base + "LexerAnalysis.json");
+    std::filesystem::path lexerCount = parent / (base + "TokenCount.json");
+    std::filesystem::path syntaxAnalysis = parent / (base + "SyntaxAnalysis.json");
+
+    // limpar dados globais
+    try {tokens.clear();} catch(...){}
+    try {parserData = Parser();} catch(...){}
+
+    // ------------ LEXER ------------
+    ifstream fin(input.string());
+    if (!fin) {
+        cerr << "Não foi possível abrir o arquivo: " << input.string() << endl;
     }
 
-    ifstream in(argv[1]);
-    if (!in) {
-        cerr << "Nao foi possivel abrir o arquivo de entrada." << endl;
-        return 1;
-    }
-
-    std::filesystem::create_directory("testes");
-    string listOutName = "testes/lexerTokenAnalisys.json";
-    string analisysOutName = "testes/lexerTokenCount.json";
-    string syntaxOutName = "testes/syntaxAnalisys.json";
-
-    // 1. Lexer
-    streambuf* old_cin = cin.rdbuf(in.rdbuf());
+    streambuf* old_cin = cin.rdbuf(fin.rdbuf());
     yyFlexLexer lexer;
-    lexer.yylex();
+    try {
+        lexer.yylex();
+    } catch(const std::exception e) {
+        cerr << "Erro durante a análise léxica: " << e.what() << endl;
+    }
+
     cin.rdbuf(old_cin);
+    fin.close();
 
-    writeTokenList(listOutName, tokens);
-    writeTokenAnalysis(analisysOutName, tokenAnalisys);
-    cout << "Analise lexica concluida." << endl;
+    // escrever arquivos JSON
+    try { writeTokenList(lexerAnalysis.string(), tokens); }
+    catch (const std::exception &e) {
+        cerr << "Erro ao salvar token list em " << lexerAnalysis << ": " << e.what() << endl;
+    }
 
-    // 2. Bison
+    try { writeTokenAnalysis(lexerCount.string(), tokenAnalisys); }
+    catch (const std::exception &e) {
+        cerr << "Erro ao salvar token analysis em " << lexerCount << ": " << e.what() << endl;
+    }
+
+    cout << "Analise lexica concluida para " << base << endl;
+
+    // ------------ PARSER ------------
     currentTokenIt = tokens.begin();
     endTokenIt = tokens.end();
 
-    cout << "Iniciando analise sintatica com Bison..." << endl;
+    cout << "Iniciando analise sintatica com Bison para " << base << "..." << endl;
     yy::parser parser;
-    parser.parse();
 
-    writeSyntaxAnalysis(syntaxOutName, parserData);
-    cout << "Analise sintatica salva em " << syntaxOutName << endl;
+    try { parser.parse(); }
+    catch (const std::exception &e) {
+        cerr << "Erro durante analise sintatica: " << e.what() << endl;
+    }
 
-    return 0;
+    try { writeSyntaxAnalysis(syntaxAnalysis.string(), parserData); }
+    catch (const std::exception &e) {
+        cerr << "Erro ao salvar analise sintatica em " << syntaxAnalysis << ": " << e.what() << endl;
+    }
+
+    cout << "Analise sintatica salva em " << syntaxAnalysis << endl;
 }
+
+int main(int argc, char* argv[]) {
+
+    // Se o usuário passar um arquivo específico, processa só ele
+    if (argc >= 2) {
+        std::filesystem::path arquivoUnico(argv[1]);
+        if (!std::filesystem::exists(arquivoUnico)) {
+            cerr << "Arquivo informado nao existe: " << arquivoUnico << endl;
+            return 1;
+        }
+        processarArquivo(arquivoUnico);
+        return 0;
+        }
+
+    // Caso contrário, processa TODOS os arquivos .tonto da pasta testes/
+    std::filesystem::path testes = "../testes";
+    if (!std::filesystem::exists(testes) || !std::filesystem::is_directory(testes)) {
+        cerr << "pasta \'" << testes << "\' não encontrada! " << endl;
+        return 1;
+    }
+
+    if (std::filesystem::is_empty(testes)) {
+        cerr << "Pasta \'" << testes << "\' vazia! " << endl;
+        return 1;
+    }
+
+    for (auto &entry : std::filesystem::recursive_directory_iterator(testes)) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() == ".tonto") {
+            processarArquivo(entry.path());
+        }
+    }
+
+    cout << "Processamento concluido." << endl;
+    return 0;
+    }
