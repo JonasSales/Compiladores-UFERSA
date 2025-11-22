@@ -28,7 +28,8 @@ public:
             {"historicalRole", TokenType::CLASS_STEREOTYPE},
             {"relator", TokenType::CLASS_STEREOTYPE},
             {"type", TokenType::CLASS_STEREOTYPE},
-            {"powertype", TokenType::CLASS_STEREOTYPE}
+            {"powertype", TokenType::CLASS_STEREOTYPE},
+            {"relators", TokenType::CLASS_STEREOTYPE}
         };
     }
 };

@@ -60,6 +60,7 @@ struct SinteseRelacao {
 class Parser {
 public:
     string pacoteAtual = "default";
+    string ultimoLexema = "";
     vector<string> pacotesEncontrados;
     vector<SinteseClasse> classesEncontradas;
     vector<SinteseGenset> gensetsEncontrados;

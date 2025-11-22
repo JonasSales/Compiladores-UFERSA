@@ -12,12 +12,12 @@
 
 using namespace std;
 
-// Declarações/variáveis globais
+// Declarações globais
 extern std::map<int, Token> tokens;
 extern TokenAnalisys tokenAnalisys;
 extern Parser parserData;
 
-/* Iteradores usados pelo adaptador yylex() */
+/* Iteradores */
 extern std::map<int, Token>::iterator currentTokenIt;
 extern std::map<int, Token>::iterator endTokenIt;
 
@@ -34,46 +34,39 @@ yy::parser::symbol_type yylex() {
     }
 
     if (currentTokenIt == endTokenIt) {
+        parserData.ultimoLexema = "EOF";
         return yy::parser::make_END_OF_FILE(loc);
     }
 
     Token token = currentTokenIt->second;
     TokenType type = token.getTokenType();
     string lexeme = token.getLexeme();
-    ++currentTokenIt;
 
+    // --- SALVANDO O LEXEMA ATUAL ---
+    parserData.ultimoLexema = lexeme;
+
+    ++currentTokenIt;
     switch (type) {
-        /* Tokens com payload string -> passe lexeme + loc */
         case TokenType::CLASS_NAME:
             return yy::parser::make_CLASS_NAME(lexeme, loc);
-
         case TokenType::INSTANCE_NAME:
             return yy::parser::make_INSTANCE_NAME(lexeme, loc);
-
         case TokenType::DATATYPE_NAME:
             return yy::parser::make_DATATYPE_NAME(lexeme, loc);
-
         case TokenType::RELATION_NAME:
             return yy::parser::make_RELATION_NAME(lexeme, loc);
-
         case TokenType::CLASS_STEREOTYPE:
             return yy::parser::make_CLASS_STEREOTYPE(lexeme, loc);
-
         case TokenType::RELATION_STEREOTYPE:
             return yy::parser::make_RELATION_STEREOTYPE(lexeme, loc);
-
         case TokenType::NATIVE_DATA_TYPE:
             return yy::parser::make_NATIVE_DATA_TYPE(lexeme, loc);
 
-        /* --- NOVOS TOKENS (Essenciais para Car.tonto) --- */
         case TokenType::CARDINALITY:
             return yy::parser::make_CARDINALITY(lexeme, loc);
-
-        case TokenType::RELATION: // Símbolos como --, <>, ..
+        case TokenType::RELATION:
             return yy::parser::make_RELATION_OP(lexeme, loc);
-        /* ------------------------------------------------ */
 
-        /* Símbolos sem payload -> apenas loc */
         case TokenType::SYMBOL:
             if (lexeme == "{") return yy::parser::make_LBRACE(loc);
             if (lexeme == "}") return yy::parser::make_RBRACE(loc);
@@ -81,19 +74,23 @@ yy::parser::symbol_type yylex() {
             if (lexeme == ",") return yy::parser::make_COMMA(loc);
             break;
 
-        /* Palavras reservadas */
         case TokenType::RESERVED_WORD:
             if (lexeme == "package") return yy::parser::make_PACKAGE(loc);
             if (lexeme == "import") return yy::parser::make_IMPORT(loc);
             if (lexeme == "genset") return yy::parser::make_GENSET(loc);
 
-            /* Mapeia disjoint/complete para o token DISJOINT_COMPLETE */
-            if (lexeme == "disjoint")
-                return yy::parser::make_DISJOINT_COMPLETE(std::string("disjoint"), loc);
-            if (lexeme == "complete")
-                return yy::parser::make_DISJOINT_COMPLETE(std::string("complete"), loc);
-            if (lexeme == "disjoint_complete")
-                return yy::parser::make_DISJOINT_COMPLETE(std::string("disjoint_complete"), loc);
+            /* ATUALIZAÇÃO: Mapeamento para os novos tokens separados */
+            if (lexeme == "disjoint") return yy::parser::make_DISJOINT(loc);
+            if (lexeme == "complete") return yy::parser::make_COMPLETE(loc);
+
+            /* Caso legado para palavra única, se existir no lexer */
+            if (lexeme == "disjoint_complete") {
+                 // Se o token único aparecer, podemos tratá-lo como "disjoint" seguido de "complete"
+                 // Mas como o retorno é um único símbolo, idealmente o lexer deveria quebrar isso.
+                 // Por enquanto, assumimos que o usuário usa as palavras separadas.
+                 // Se necessário, podemos retornar um erro ou adaptar a gramática.
+                 return yy::parser::make_DISJOINT(loc);
+            }
 
             if (lexeme == "general") return yy::parser::make_GENERAL(loc);
             if (lexeme == "specifics") return yy::parser::make_SPECIFICS(loc);
@@ -110,14 +107,12 @@ yy::parser::symbol_type yylex() {
             break;
     }
 
-    // Ignora token desconhecido e tenta o próximo
     return yylex();
 }
 
 static void processarArquivo(const std::filesystem::path &input) {
-    cout << "Processando " << input.string() << endl;
+    //cout << "Processando " << input.string() << endl;
 
-    // prepare output filenames in the same directory
     std::filesystem::path parent = input.parent_path();
     string base = input.stem().string();
 
@@ -125,14 +120,12 @@ static void processarArquivo(const std::filesystem::path &input) {
     std::filesystem::path lexerCount = parent / (base + "TokenCount.json");
     std::filesystem::path syntaxAnalysis = parent / (base + "SyntaxAnalysis.json");
 
-    // limpar dados globais
     try { tokens.clear(); } catch(...) {}
     try { parserData = Parser(); } catch(...) {}
 
-    // ------------ LEXER ------------
     ifstream fin(input.string());
     if (!fin) {
-        cerr << "Não foi possível abrir o arquivo: " << input.string() << endl;
+        cerr << "\033[1;31m" << "Não foi possível abrir o arquivo: " << input.string() << "\033[0m" << endl;
         return;
     }
 
@@ -141,13 +134,12 @@ static void processarArquivo(const std::filesystem::path &input) {
     try {
         lexer.yylex();
     } catch(const std::exception &e) {
-        cerr << "Erro durante a análise léxica: " << e.what() << endl;
+        cerr << "\033[1;31m" << "Erro durante a análise léxica: " << e.what() << "\033[0m" << endl;
     }
 
     cin.rdbuf(old_cin);
     fin.close();
 
-    // escrever arquivos JSON
     try { writeTokenList(lexerAnalysis.string(), tokens); }
     catch (const std::exception &e) {
         cerr << "Erro ao salvar token list em " << lexerAnalysis << ": " << e.what() << endl;
@@ -158,18 +150,18 @@ static void processarArquivo(const std::filesystem::path &input) {
         cerr << "Erro ao salvar token analysis em " << lexerCount << ": " << e.what() << endl;
     }
 
-    cout << "Analise lexica concluida para " << base << endl;
+    //cout << "Analise lexica concluida para " << base << endl;
 
-    // ------------ PARSER ------------
     currentTokenIt = tokens.begin();
     endTokenIt = tokens.end();
 
-    cout << "Iniciando analise sintatica com Bison para " << base << "..." << endl;
+    cout << "Iniciando analise sintatica com Bison para " << base << ".tonto" << endl;
     yy::parser parser;
 
-    try { parser.parse(); }
-    catch (const std::exception &e) {
-        cerr << "Erro durante analise sintatica: " << e.what() << endl;
+    try {
+        parser.parse();
+    } catch (const std::exception &e) {
+        cerr << "\033[1;31m" << "Erro durante analise sintatica: " << e.what() << "\033[0m" << endl;
     }
 
     try { writeSyntaxAnalysis(syntaxAnalysis.string(), parserData); }
@@ -182,7 +174,6 @@ static void processarArquivo(const std::filesystem::path &input) {
 
 int main(int argc, char* argv[]) {
 
-    // Se o usuário passar um arquivo específico, processa só ele
     if (argc >= 2) {
         std::filesystem::path arquivoUnico(argv[1]);
         if (!std::filesystem::exists(arquivoUnico)) {
@@ -193,12 +184,11 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // Caso contrário, processa TODOS os arquivos .tonto da pasta testes/
     std::filesystem::path testes = "../testes";
     if (!std::filesystem::exists(testes) || !std::filesystem::is_directory(testes)) {
         cerr << "pasta \'" << testes << "\' não encontrada! " << endl;
         return 1;
-        }
+    }
 
     if (std::filesystem::is_empty(testes)) {
         cerr << "Pasta \'" << testes << "\' vazia! " << endl;

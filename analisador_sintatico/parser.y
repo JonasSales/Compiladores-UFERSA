@@ -21,36 +21,34 @@
     extern Parser parserData;
 }
 
-/* --- Tokens com tipos semânticos --- */
-/* Identificadores e literais */
+/* --- Tokens --- */
 %token <std::string> CLASS_NAME RELATION_NAME INSTANCE_NAME DATATYPE_NAME
 %token <std::string> STRING NUMBER
 %token <std::string> CLASS_STEREOTYPE RELATION_STEREOTYPE
 %token <std::string> NATIVE_DATA_TYPE
+%token <std::string> CARDINALITY
+%token <std::string> RELATION_OP
 
-/* Novos tokens para suportar relações complexas */
-%token <std::string> CARDINALITY    /* Ex: [1], [0..*] */
-%token <std::string> RELATION_OP    /* Ex: --, <>, .. */
+/* Tokens Específicos para Controle de Ordem */
+%token DISJOINT COMPLETE
 
-/* Palavras reservadas e símbolos */
 %token PACKAGE IMPORT GENSET
-%token <std::string> DISJOINT_COMPLETE
 %token GENERAL SPECIFICS
 %token SPECIALIZES DATATYPE ENUM RELATION
 %token LBRACE "{" RBRACE "}" COLON ":" COMMA "," END_OF_FILE 0 "EOF"
 %token META_ATTRIBUTE_START "meta{" META_ATTRIBUTE_END "meta}"
 
-/* --- Tipos de retorno das regras (semânticos) --- */
+/* --- Tipos de Retorno --- */
 %type <SinteseClasse> class_decl
 %type <std::vector<SinteseAtributo>> opt_body body_content
 %type <SinteseAtributo> attribute_decl inner_relation_decl
 %type <std::string> type_ref opt_specializes identifier
-%type <std::string> opt_disjoint_complete
+%type <std::string> opt_disjoint_complete specialization_list
 %type <std::vector<std::string>> class_list
 
 %%
 
-/* ---------------- Programa principal ---------------- */
+/* ---------------- Programa Principal ---------------- */
 program:
     declarations_list
     ;
@@ -72,10 +70,11 @@ declaration:
     | relation_decl
     ;
 
-/* --- Auxiliares --- */
+/* --- Identificadores --- */
 identifier:
     CLASS_NAME { $$ = $1; }
     | INSTANCE_NAME { $$ = $1; }
+    | RELATION_NAME { $$ = $1; }
     ;
 
 /* --- Package & Import --- */
@@ -89,11 +88,11 @@ package_decl:
 
 import_decl:
     IMPORT identifier {
-    std::cout << "BISON: Import " << $2 << std::endl;
+        //std::cout << "BISON: Import " << $2 << std::endl;
     }
     ;
 
-/* --- Classe --- */
+/* --- Classe / Relator --- */
 class_decl:
     CLASS_STEREOTYPE identifier opt_specializes opt_body {
         SinteseClasse novaClasse;
@@ -107,19 +106,24 @@ class_decl:
     }
     ;
 
+    specialization_list:
+          identifier { $$ = $1; }
+        | specialization_list "," identifier {
+              $$ = $1 + ", " + $3; /* Concatena os nomes com vírgula */
+          }
+        ;
+
 opt_specializes:
-    SPECIALIZES identifier { $$ = $2; }
+    SPECIALIZES specialization_list { $$ = $2; }
     | /* vazio */ { $$ = ""; }
     ;
 
+/* --- Corpo da Classe --- */
 opt_body:
     "{" body_content "}" { $$ = $2; }
     | /* vazio */ { $$ = std::vector<SinteseAtributo>(); }
     ;
 
-/* body_content: Lista recursiva que aceita tanto atributos simples (attribute_decl)
-   quanto relações internas (inner_relation_decl)
-*/
 body_content:
       body_content attribute_decl {
           $1.push_back($2);
@@ -144,7 +148,6 @@ body_content:
       }
     ;
 
-/* Atributo simples: nome : tipo */
 attribute_decl:
     RELATION_NAME ":" type_ref {
         SinteseAtributo attr;
@@ -154,21 +157,22 @@ attribute_decl:
     }
     ;
 
-/* Nova regra para relações internas no estilo Tonto:
-   Ex: @mediation -- involvesOwner -- [1] CarAgency
-*/
 inner_relation_decl:
+    /* Opção 1: Com estereótipo (Ex: @mediation -- nome -- [1] Tipo) */
     RELATION_STEREOTYPE RELATION_OP RELATION_NAME RELATION_OP CARDINALITY type_ref {
         SinteseAtributo attr;
-        attr.nome = $3;           /* Nome da relação (ex: involvesOwner) */
-        attr.tipo = $6;           /* Tipo alvo (ex: CarAgency) */
-        attr.metaAtributo = $1;   /* Estereótipo (ex: @mediation) salvo no campo metaAtributo */
-
-        /* Obs: $5 é a cardinalidade e $2/$4 são as setas.
-           Podem ser armazenados se a struct SinteseAtributo for expandida. */
-
+        attr.nome = $3;
+        attr.tipo = $6;
+        attr.metaAtributo = $1;
         $$ = attr;
-        //std::cout << "BISON: Relação interna " << $3 << " [" << $5 << "] -> " << $6 << std::endl;
+    }
+    /* Opção 2: Sem estereótipo (Ex: -- nome -- [1] Tipo) */
+    | RELATION_OP RELATION_NAME RELATION_OP CARDINALITY type_ref {
+        SinteseAtributo attr;
+        attr.nome = $2;
+        attr.tipo = $5;
+        attr.metaAtributo = ""; /* Sem estereótipo */
+        $$ = attr;
     }
     ;
 
@@ -178,12 +182,16 @@ type_ref:
     | DATATYPE_NAME { $$ = $1; }
     ;
 
-/* --- Genset --- */
+/* --- Genset (Generalization Set) --- */
+
 opt_disjoint_complete:
-      DISJOINT_COMPLETE { $$ = $1; }
-    | /* vazio */ { $$ = std::string(""); }
+      /* vazio */ { $$ = ""; }
+    | DISJOINT { $$ = "disjoint"; }
+    | COMPLETE { $$ = "complete"; }
+    | DISJOINT COMPLETE { $$ = "disjoint complete"; }
     ;
 
+/* --- ESTA É A REGRA QUE FALTAVA --- */
 class_list:
       class_list "," identifier {
           $1.push_back($3);
@@ -195,6 +203,7 @@ class_list:
           $$ = v;
       }
     ;
+/* ---------------------------------- */
 
 genset_decl:
     opt_disjoint_complete GENSET identifier "{" GENERAL identifier SPECIFICS class_list "}" {
@@ -202,15 +211,16 @@ genset_decl:
         gs.nome = $3;
         gs.classeGeral = $6;
         gs.classesEspecificas = $8;
+
         std::string flags = $1;
         gs.isDisjoint = (flags.find("disjoint") != std::string::npos);
         gs.isComplete = (flags.find("complete") != std::string::npos);
 
         parserData.gensetsEncontrados.push_back(gs);
+        //std::cout << "BISON: Genset " << $3 << " (flags: " << flags << ")" << std::endl;
     }
     ;
 
-/* --- Datatype, Enum --- */
 datatype_decl:
     DATATYPE identifier "{" "}" {
         SinteseDatatype dt;
@@ -229,7 +239,6 @@ enum_decl:
     }
     ;
 
-/* --- Relation (Declaração externa) --- */
 relation_decl:
       RELATION_STEREOTYPE RELATION identifier {
           SinteseRelacao r;
@@ -248,8 +257,47 @@ relation_decl:
 %%
 
 void yy::parser::error(const yy::location& loc, const std::string& m) {
-    std::cerr << "[ERRO SINTATICO BISON]: " << m
-              << " (linha " << loc.begin.line
-              << ", coluna " << loc.begin.column << ")\n";
-    parserData.addErro(loc.begin.line, loc.begin.column, m);
+    std::string mensagem = m;
+
+    // 1. Substitui o nome técnico do token pelo lexema real (ex: RELATION_OP -> "--")
+    std::string alvo = "unexpected ";
+    size_t pos = mensagem.find(alvo);
+
+    if (pos != std::string::npos) {
+        size_t inicioToken = pos + alvo.length();
+        size_t fimToken = mensagem.find(',', inicioToken);
+        if (fimToken == std::string::npos) {
+            fimToken = mensagem.length();
+        }
+        // Insere o lexema entre aspas
+        mensagem.replace(inicioToken, fimToken - inicioToken, "\"" + parserData.ultimoLexema + "\"");
+    }
+
+    // 2. Formata a saída exatamente como solicitado
+    // O Bison gera: "syntax error, unexpected..."
+    // Queremos: "syntax error (linha X, coluna Y): unexpected..."
+
+    std::string prefixo = "syntax error";
+    std::string corpoMensagem;
+
+    // Remove o "syntax error" inicial para inserir a localização
+    if (mensagem.find(prefixo) == 0) {
+        corpoMensagem = mensagem.substr(prefixo.length());
+        // Remove a vírgula e espaço extra ", " que o Bison coloca após "syntax error"
+        if (corpoMensagem.find(", ") == 0) {
+            corpoMensagem = corpoMensagem.substr(2);
+        }
+    } else {
+        corpoMensagem = mensagem;
+    }
+
+    // Imprime no formato desejado com cor vermelha
+    std::cerr << "\033[1;31m"
+              << "syntax error (linha " << loc.begin.line
+              << ", coluna " << loc.begin.column << "): "
+              << corpoMensagem
+              << "\033[0m" << "\n";
+
+    // Guarda o erro na lista interna (opcionalmente com o formato original ou novo)
+    parserData.addErro(loc.begin.line, loc.begin.column, mensagem);
 }

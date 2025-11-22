@@ -26,7 +26,7 @@ public:
             {"specializes", TokenType::RESERVED_WORD},
             {"datatype", TokenType::RESERVED_WORD}, // [cite: 61]
             {"enum", TokenType::RESERVED_WORD},     // [cite: 69]
-            {"relation", TokenType::RESERVED_WORD}  // [cite: 100]
+            {"relation", TokenType::RESERVED_WORD}, // [cite: 100]
         };
     }
 };
