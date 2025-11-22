@@ -88,7 +88,9 @@ package_decl:
     ;
 
 import_decl:
-    IMPORT identifier { std::cout << "BISON: Import " << $2 << std::endl; }
+    IMPORT identifier {
+    std::cout << "BISON: Import " << $2 << std::endl;
+    }
     ;
 
 /* --- Classe --- */

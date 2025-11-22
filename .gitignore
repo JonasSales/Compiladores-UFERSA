@@ -1,5 +1,3 @@
-testes/teste.tonto_analisys.json
-testes/teste.tonto_list.json
 cmake-build-debug
-/testes/*
 build
+*.json
