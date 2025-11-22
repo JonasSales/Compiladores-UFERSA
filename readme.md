@@ -66,7 +66,7 @@ Configure o CMake para criar as pastas necessárias para o projeto
 Compilar o código fonte
 
 ```bash
-mkdir -p build && cd build && cmake .. && make -j$(nproc)
+mkdir -p build && cd build && rm -rf * && cmake .. && make -j$(nproc)
 ```
 
 Rodar teste

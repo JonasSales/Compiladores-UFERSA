@@ -1,9 +1,18 @@
 #include "lex_config.h"
 #include "../entities/Token.h"
 #include "analisador_lexico/entities/TokenAnalisys.h"
+#include "../../analisador_sintatico/Parser.h" //
 
+using namespace std;
+
+// Definição das variáveis globais (aqui elas são criadas na memória)
 map<int, Token> tokens;
 TokenAnalisys tokenAnalisys;
+
+// Definição das variáveis que estavam faltando (e causando o erro do linker)
+Parser parserData;
+std::map<int, Token>::iterator currentTokenIt;
+std::map<int, Token>::iterator endTokenIt;
 
 string tokenToString(const TokenType type) {
     switch (type) {

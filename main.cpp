@@ -1,75 +1,116 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include <map>
+#include <string>
+
 #include "FlexLexer.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
 #include "util/JsonWriter.h"
-#include "parser.hpp"
-#include "analisador_sintatico/Parser.h"
+#include "parser.hpp"                     // gerado pelo bison (build/parser.hpp)
+#include "analisador_sintatico/Parser.h"  // sua struct Parser (parserData)
 
 using namespace std;
 
-Parser parserData;
+// Declarações/variáveis globais
+extern std::map<int, Token> tokens;
+extern TokenAnalisys tokenAnalisys;
+extern Parser parserData;
 
-map<int, Token>::iterator currentTokenIt;
-map<int, Token>::iterator endTokenIt;
+/* Iteradores usados pelo adaptador yylex() */
+extern std::map<int, Token>::iterator currentTokenIt;
+extern std::map<int, Token>::iterator endTokenIt;
 
-// --- ADAPTER (YYLEX) ---
+
+/* --- ADAPTER (YYLEX) ---*/
 yy::parser::symbol_type yylex() {
+    yy::parser::location_type loc;
+
+    if (currentTokenIt != endTokenIt) {
+        const Token &t = currentTokenIt->second;
+        loc.begin.line = t.getLine();
+        loc.begin.column = t.getColumn();
+        loc.end = loc.begin;
+    }
+
     if (currentTokenIt == endTokenIt) {
-        return yy::parser::make_END_OF_FILE();
+        return yy::parser::make_END_OF_FILE(loc);
     }
 
     Token token = currentTokenIt->second;
     TokenType type = token.getTokenType();
     string lexeme = token.getLexeme();
     ++currentTokenIt;
+
     switch (type) {
+        /* Tokens com payload string -> passe lexeme + loc */
         case TokenType::CLASS_NAME:
-            return yy::parser::make_CLASS_NAME(lexeme);
+            return yy::parser::make_CLASS_NAME(lexeme, loc);
 
         case TokenType::INSTANCE_NAME:
-            return yy::parser::make_INSTANCE_NAME(lexeme);
+            return yy::parser::make_INSTANCE_NAME(lexeme, loc);
 
         case TokenType::DATATYPE_NAME:
-            return yy::parser::make_DATATYPE_NAME(lexeme);
+            return yy::parser::make_DATATYPE_NAME(lexeme, loc);
 
         case TokenType::RELATION_NAME:
-            return yy::parser::make_RELATION_NAME(lexeme);
-        case TokenType::CLASS_STEREOTYPE:
-            return yy::parser::make_CLASS_STEREOTYPE(lexeme);
-        case TokenType::RELATION_STEREOTYPE:
-            return yy::parser::make_RELATION_STEREOTYPE(lexeme);
-        case TokenType::NATIVE_DATA_TYPE:
-            return yy::parser::make_NATIVE_DATA_TYPE(lexeme);
+            return yy::parser::make_RELATION_NAME(lexeme, loc);
 
+        case TokenType::CLASS_STEREOTYPE:
+            return yy::parser::make_CLASS_STEREOTYPE(lexeme, loc);
+
+        case TokenType::RELATION_STEREOTYPE:
+            return yy::parser::make_RELATION_STEREOTYPE(lexeme, loc);
+
+        case TokenType::NATIVE_DATA_TYPE:
+            return yy::parser::make_NATIVE_DATA_TYPE(lexeme, loc);
+
+        /* --- NOVOS TOKENS (Essenciais para Car.tonto) --- */
+        case TokenType::CARDINALITY:
+            return yy::parser::make_CARDINALITY(lexeme, loc);
+
+        case TokenType::RELATION: // Símbolos como --, <>, ..
+            return yy::parser::make_RELATION_OP(lexeme, loc);
+        /* ------------------------------------------------ */
+
+        /* Símbolos sem payload -> apenas loc */
         case TokenType::SYMBOL:
-            if (lexeme == "{") return yy::parser::make_LBRACE();
-            if (lexeme == "}") return yy::parser::make_RBRACE();
-            if (lexeme == ":") return yy::parser::make_COLON();
-            if (lexeme == ",") return yy::parser::make_COMMA();
+            if (lexeme == "{") return yy::parser::make_LBRACE(loc);
+            if (lexeme == "}") return yy::parser::make_RBRACE(loc);
+            if (lexeme == ":") return yy::parser::make_COLON(loc);
+            if (lexeme == ",") return yy::parser::make_COMMA(loc);
             break;
 
+        /* Palavras reservadas */
         case TokenType::RESERVED_WORD:
-            if (lexeme == "package") return yy::parser::make_PACKAGE();
-            if (lexeme == "import") return yy::parser::make_IMPORT();
-            if (lexeme == "genset") return yy::parser::make_GENSET();
-            if (lexeme == "disjoint") return yy::parser::make_DISJOINT();
-            if (lexeme == "complete") return yy::parser::make_COMPLETE();
-            if (lexeme == "general") return yy::parser::make_GENERAL();
-            if (lexeme == "specifics") return yy::parser::make_SPECIFICS();
-            if (lexeme == "specializes") return yy::parser::make_SPECIALIZES();
-            if (lexeme == "datatype") return yy::parser::make_DATATYPE();
-            if (lexeme == "enum") return yy::parser::make_ENUM();
-            if (lexeme == "relation") return yy::parser::make_RELATION();
+            if (lexeme == "package") return yy::parser::make_PACKAGE(loc);
+            if (lexeme == "import") return yy::parser::make_IMPORT(loc);
+            if (lexeme == "genset") return yy::parser::make_GENSET(loc);
+
+            /* Mapeia disjoint/complete para o token DISJOINT_COMPLETE */
+            if (lexeme == "disjoint")
+                return yy::parser::make_DISJOINT_COMPLETE(std::string("disjoint"), loc);
+            if (lexeme == "complete")
+                return yy::parser::make_DISJOINT_COMPLETE(std::string("complete"), loc);
+            if (lexeme == "disjoint_complete")
+                return yy::parser::make_DISJOINT_COMPLETE(std::string("disjoint_complete"), loc);
+
+            if (lexeme == "general") return yy::parser::make_GENERAL(loc);
+            if (lexeme == "specifics") return yy::parser::make_SPECIFICS(loc);
+            if (lexeme == "specializes") return yy::parser::make_SPECIALIZES(loc);
+            if (lexeme == "datatype") return yy::parser::make_DATATYPE(loc);
+            if (lexeme == "enum") return yy::parser::make_ENUM(loc);
+            if (lexeme == "relation") return yy::parser::make_RELATION(loc);
             break;
 
         case TokenType::END_OF_FILE:
-             return yy::parser::make_END_OF_FILE();
+            return yy::parser::make_END_OF_FILE(loc);
 
         default:
             break;
     }
+
+    // Ignora token desconhecido e tenta o próximo
     return yylex();
 }
 
@@ -85,20 +126,21 @@ static void processarArquivo(const std::filesystem::path &input) {
     std::filesystem::path syntaxAnalysis = parent / (base + "SyntaxAnalysis.json");
 
     // limpar dados globais
-    try {tokens.clear();} catch(...){}
-    try {parserData = Parser();} catch(...){}
+    try { tokens.clear(); } catch(...) {}
+    try { parserData = Parser(); } catch(...) {}
 
     // ------------ LEXER ------------
     ifstream fin(input.string());
     if (!fin) {
         cerr << "Não foi possível abrir o arquivo: " << input.string() << endl;
+        return;
     }
 
     streambuf* old_cin = cin.rdbuf(fin.rdbuf());
     yyFlexLexer lexer;
     try {
         lexer.yylex();
-    } catch(const std::exception e) {
+    } catch(const std::exception &e) {
         cerr << "Erro durante a análise léxica: " << e.what() << endl;
     }
 
@@ -135,7 +177,7 @@ static void processarArquivo(const std::filesystem::path &input) {
         cerr << "Erro ao salvar analise sintatica em " << syntaxAnalysis << ": " << e.what() << endl;
     }
 
-    cout << "Analise sintatica salva em " << syntaxAnalysis << endl;
+    cout << "Analise sintatica salva em " << syntaxAnalysis << endl << endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -149,14 +191,14 @@ int main(int argc, char* argv[]) {
         }
         processarArquivo(arquivoUnico);
         return 0;
-        }
+    }
 
     // Caso contrário, processa TODOS os arquivos .tonto da pasta testes/
     std::filesystem::path testes = "../testes";
     if (!std::filesystem::exists(testes) || !std::filesystem::is_directory(testes)) {
         cerr << "pasta \'" << testes << "\' não encontrada! " << endl;
         return 1;
-    }
+        }
 
     if (std::filesystem::is_empty(testes)) {
         cerr << "Pasta \'" << testes << "\' vazia! " << endl;
@@ -172,4 +214,4 @@ int main(int argc, char* argv[]) {
 
     cout << "Processamento concluido." << endl;
     return 0;
-    }
+}
