@@ -8,6 +8,7 @@ public:
     void initialize() override {
         keywords = {
             {"material", TokenType::RELATION_STEREOTYPE},
+            {"@material", TokenType::RELATION_STEREOTYPE},
             {"derivation", TokenType::RELATION_STEREOTYPE},
             {"comparative", TokenType::RELATION_STEREOTYPE},
             {"mediation", TokenType::RELATION_STEREOTYPE},

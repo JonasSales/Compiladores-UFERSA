@@ -42,7 +42,7 @@
 %type <SinteseClasse> class_decl
 %type <std::vector<SinteseAtributo>> opt_body body_content
 %type <SinteseAtributo> attribute_decl inner_relation_decl
-%type <std::string> type_ref opt_specializes identifier
+%type <std::string> type_ref opt_specializes identifier opt_nature opt_cardinality
 %type <std::string> opt_disjoint_complete specialization_list
 %type <std::vector<std::string>> class_list
 
@@ -82,36 +82,45 @@ package_decl:
     PACKAGE identifier {
         parserData.pacoteAtual = $2;
         parserData.pacotesEncontrados.push_back($2);
-        //std::cout << "BISON: Pacote " << $2 << std::endl;
     }
     ;
 
 import_decl:
     IMPORT identifier {
-        //std::cout << "BISON: Import " << $2 << std::endl;
+        // Ação de importação se necessário
     }
     ;
 
 /* --- Classe / Relator --- */
+/* CORREÇÃO: Adicionado opt_nature para suportar 'of functional-complexes' */
 class_decl:
-    CLASS_STEREOTYPE identifier opt_specializes opt_body {
+    CLASS_STEREOTYPE identifier opt_nature opt_specializes opt_body {
         SinteseClasse novaClasse;
         novaClasse.pacote = parserData.pacoteAtual;
         novaClasse.estereotipo = $1;
         novaClasse.nome = $2;
-        novaClasse.herdaDe = $3;
-        novaClasse.atributos = $4;
+        // O campo 'natureza' ($3) poderia ser salvo em novaClasse se a struct suportar
+        novaClasse.herdaDe = $4;
+        novaClasse.atributos = $5;
         $$ = novaClasse;
-        //std::cout << "BISON: Classe/Relator " << $2 << " (" << $1 << ")" << std::endl;
     }
     ;
 
-    specialization_list:
-          identifier { $$ = $1; }
-        | specialization_list "," identifier {
-              $$ = $1 + ", " + $3; /* Concatena os nomes com vírgula */
-          }
-        ;
+/* NOVA REGRA: Natureza da classe (ex: of functional-complexes) */
+opt_nature:
+    identifier identifier {
+        /* Assume que o primeiro ID é "of" e o segundo é a natureza */
+        $$ = $1 + " " + $2;
+    }
+    | /* vazio */ { $$ = ""; }
+    ;
+
+specialization_list:
+      identifier { $$ = $1; }
+    | specialization_list "," identifier {
+          $$ = $1 + ", " + $3;
+      }
+    ;
 
 opt_specializes:
     SPECIALIZES specialization_list { $$ = $2; }
@@ -148,11 +157,19 @@ body_content:
       }
     ;
 
+/* NOVA REGRA: Cardinalidade opcional */
+opt_cardinality:
+    CARDINALITY { $$ = $1; }
+    | /* vazio */ { $$ = ""; }
+    ;
+
+/* CORREÇÃO: Adicionado opt_cardinality */
 attribute_decl:
-    RELATION_NAME ":" type_ref {
+    RELATION_NAME ":" type_ref opt_cardinality {
         SinteseAtributo attr;
         attr.nome = $1;
         attr.tipo = $3;
+        // attr.cardinalidade = $4; // Descomente se SinteseAtributo tiver este campo
         $$ = attr;
     }
     ;
@@ -171,7 +188,7 @@ inner_relation_decl:
         SinteseAtributo attr;
         attr.nome = $2;
         attr.tipo = $5;
-        attr.metaAtributo = ""; /* Sem estereótipo */
+        attr.metaAtributo = "";
         $$ = attr;
     }
     ;
@@ -191,7 +208,6 @@ opt_disjoint_complete:
     | DISJOINT COMPLETE { $$ = "disjoint complete"; }
     ;
 
-/* --- ESTA É A REGRA QUE FALTAVA --- */
 class_list:
       class_list "," identifier {
           $1.push_back($3);
@@ -203,7 +219,6 @@ class_list:
           $$ = v;
       }
     ;
-/* ---------------------------------- */
 
 genset_decl:
     opt_disjoint_complete GENSET identifier "{" GENERAL identifier SPECIFICS class_list "}" {
@@ -217,7 +232,6 @@ genset_decl:
         gs.isComplete = (flags.find("complete") != std::string::npos);
 
         parserData.gensetsEncontrados.push_back(gs);
-        //std::cout << "BISON: Genset " << $3 << " (flags: " << flags << ")" << std::endl;
     }
     ;
 
@@ -239,8 +253,20 @@ enum_decl:
     }
     ;
 
+/* CORREÇÃO: Suporte para definição completa de relações (Pizzaria.tonto) */
 relation_decl:
-      RELATION_STEREOTYPE RELATION identifier {
+      /* Caso 1: Declaração Completa (Ex: @material relation Source [1..*] -- name -- [1..*] Target) */
+      RELATION_STEREOTYPE RELATION identifier CARDINALITY RELATION_OP identifier RELATION_OP CARDINALITY identifier {
+          SinteseRelacao r;
+          r.estereotipo = $1;
+          r.nome = $6; // O nome da relação é o que está no meio
+          // Se SinteseRelacao tiver campos para source/target/cardinalidades, preencha aqui:
+          // r.source = $3; r.sourceCard = $4;
+          // r.target = $9; r.targetCard = $8;
+          parserData.relacoesExternasEncontradas.push_back(r);
+      }
+      /* Caso 2: Declaração Simplificada (apenas nome e estereótipo) */
+    | RELATION_STEREOTYPE RELATION identifier {
           SinteseRelacao r;
           r.estereotipo = $1;
           r.nome = $3;
@@ -258,8 +284,7 @@ relation_decl:
 
 void yy::parser::error(const yy::location& loc, const std::string& m) {
     std::string mensagem = m;
-
-    // 1. Substitui o nome técnico do token pelo lexema real (ex: RELATION_OP -> "--")
+    // 1. Substitui o nome técnico do token pelo lexema real
     std::string alvo = "unexpected ";
     size_t pos = mensagem.find(alvo);
 
@@ -269,21 +294,14 @@ void yy::parser::error(const yy::location& loc, const std::string& m) {
         if (fimToken == std::string::npos) {
             fimToken = mensagem.length();
         }
-        // Insere o lexema entre aspas
         mensagem.replace(inicioToken, fimToken - inicioToken, "\"" + parserData.ultimoLexema + "\"");
     }
-
-    // 2. Formata a saída exatamente como solicitado
-    // O Bison gera: "syntax error, unexpected..."
-    // Queremos: "syntax error (linha X, coluna Y): unexpected..."
 
     std::string prefixo = "syntax error";
     std::string corpoMensagem;
 
-    // Remove o "syntax error" inicial para inserir a localização
     if (mensagem.find(prefixo) == 0) {
         corpoMensagem = mensagem.substr(prefixo.length());
-        // Remove a vírgula e espaço extra ", " que o Bison coloca após "syntax error"
         if (corpoMensagem.find(", ") == 0) {
             corpoMensagem = corpoMensagem.substr(2);
         }
@@ -291,13 +309,10 @@ void yy::parser::error(const yy::location& loc, const std::string& m) {
         corpoMensagem = mensagem;
     }
 
-    // Imprime no formato desejado com cor vermelha
     std::cerr << "\033[1;31m"
               << "syntax error (linha " << loc.begin.line
               << ", coluna " << loc.begin.column << "): "
               << corpoMensagem
               << "\033[0m" << "\n";
-
-    // Guarda o erro na lista interna (opcionalmente com o formato original ou novo)
     parserData.addErro(loc.begin.line, loc.begin.column, mensagem);
 }
