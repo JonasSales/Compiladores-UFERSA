@@ -17,7 +17,6 @@ extern std::map<int, Token> tokens;
 extern TokenAnalisys tokenAnalisys;
 extern Parser parserData;
 
-/* Iteradores */
 extern std::map<int, Token>::iterator currentTokenIt;
 extern std::map<int, Token>::iterator endTokenIt;
 
@@ -83,12 +82,7 @@ yy::parser::symbol_type yylex() {
             if (lexeme == "disjoint") return yy::parser::make_DISJOINT(loc);
             if (lexeme == "complete") return yy::parser::make_COMPLETE(loc);
 
-            /* Caso legado para palavra única, se existir no lexer */
             if (lexeme == "disjoint_complete") {
-                 // Se o token único aparecer, podemos tratá-lo como "disjoint" seguido de "complete"
-                 // Mas como o retorno é um único símbolo, idealmente o lexer deveria quebrar isso.
-                 // Por enquanto, assumimos que o usuário usa as palavras separadas.
-                 // Se necessário, podemos retornar um erro ou adaptar a gramática.
                  return yy::parser::make_DISJOINT(loc);
             }
 
@@ -111,8 +105,6 @@ yy::parser::symbol_type yylex() {
 }
 
 static void processarArquivo(const std::filesystem::path &input) {
-    //cout << "Processando " << input.string() << endl;
-
     std::filesystem::path parent = input.parent_path();
     string base = input.stem().string();
 
@@ -144,13 +136,6 @@ static void processarArquivo(const std::filesystem::path &input) {
     catch (const std::exception &e) {
         cerr << "Erro ao salvar token list em " << lexerAnalysis << ": " << e.what() << endl;
     }
-
-    try { writeTokenAnalysis(lexerCount.string(), tokenAnalisys); }
-    catch (const std::exception &e) {
-        cerr << "Erro ao salvar token analysis em " << lexerCount << ": " << e.what() << endl;
-    }
-
-    //cout << "Analise lexica concluida para " << base << endl;
 
     currentTokenIt = tokens.begin();
     endTokenIt = tokens.end();

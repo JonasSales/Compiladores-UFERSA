@@ -92,7 +92,6 @@ import_decl:
     ;
 
 /* --- Classe / Relator --- */
-/* CORREÇÃO: Adicionado opt_nature para suportar 'of functional-complexes' */
 class_decl:
     CLASS_STEREOTYPE identifier opt_nature opt_specializes opt_body {
         SinteseClasse novaClasse;
@@ -106,7 +105,6 @@ class_decl:
     }
     ;
 
-/* NOVA REGRA: Natureza da classe (ex: of functional-complexes) */
 opt_nature:
     identifier identifier {
         /* Assume que o primeiro ID é "of" e o segundo é a natureza */
@@ -157,13 +155,13 @@ body_content:
       }
     ;
 
-/* NOVA REGRA: Cardinalidade opcional */
+/* Cardinalidade */
 opt_cardinality:
     CARDINALITY { $$ = $1; }
     | /* vazio */ { $$ = ""; }
     ;
 
-/* CORREÇÃO: Adicionado opt_cardinality */
+/* opt_cardinality */
 attribute_decl:
     RELATION_NAME ":" type_ref opt_cardinality {
         SinteseAtributo attr;
@@ -175,7 +173,7 @@ attribute_decl:
     ;
 
 inner_relation_decl:
-    /* Opção 1: Com estereótipo (Ex: @mediation -- nome -- [1] Tipo) */
+    /* Com estereótipo (Ex: @mediation -- nome -- [1] Tipo) */
     RELATION_STEREOTYPE RELATION_OP RELATION_NAME RELATION_OP CARDINALITY type_ref {
         SinteseAtributo attr;
         attr.nome = $3;
@@ -183,7 +181,7 @@ inner_relation_decl:
         attr.metaAtributo = $1;
         $$ = attr;
     }
-    /* Opção 2: Sem estereótipo (Ex: -- nome -- [1] Tipo) */
+    /* Sem estereótipo (Ex: -- nome -- [1] Tipo) */
     | RELATION_OP RELATION_NAME RELATION_OP CARDINALITY type_ref {
         SinteseAtributo attr;
         attr.nome = $2;
@@ -208,7 +206,6 @@ type_ref:
     ;
 
 /* --- Genset (Generalization Set) --- */
-
 opt_disjoint_complete:
       /* vazio */ { $$ = ""; }
     | DISJOINT { $$ = "disjoint"; }
@@ -261,23 +258,28 @@ enum_decl:
     }
     ;
 
-/* CORREÇÃO: Suporte para definição completa de relações (Pizzaria.tonto) */
 relation_decl:
-      /* Caso 1: Declaração Completa (Ex: @material relation Source [1..*] -- name -- [1..*] Target) */
+      /* Caso 1: Declaração Completa com Cardinalidades e Source/Target */
       RELATION_STEREOTYPE RELATION identifier CARDINALITY RELATION_OP identifier RELATION_OP CARDINALITY identifier {
           SinteseRelacao r;
           r.estereotipo = $1;
-          r.nome = $6; // O nome da relação é o que está no meio
-          // Se SinteseRelacao tiver campos para source/target/cardinalidades, preencha aqui:
-          // r.source = $3; r.sourceCard = $4;
-          // r.target = $9; r.targetCard = $8;
+          r.dominio = $3;              // $3 é o identificador da classe de origem (Source)
+          r.cardinalidadeDominio = $4; // $4 é a cardinalidade da origem (ex: [1..*])
+          r.simboloRelacao = $5;       // $5 é o operador (ex: --)
+          r.nome = $6;                 // $6 é o nome da relação
+          // $7 é o segundo operador (ignoramos ou assumimos simetria)
+          r.cardinalidadeImagem = $8;  // $8 é a cardinalidade do destino
+          r.imagem = $9;               // $9 é o identificador da classe de destino (Target)
+
           parserData.relacoesExternasEncontradas.push_back(r);
       }
+
       /* Caso 2: Declaração Simplificada (apenas nome e estereótipo) */
     | RELATION_STEREOTYPE RELATION identifier {
           SinteseRelacao r;
           r.estereotipo = $1;
           r.nome = $3;
+          // Outros campos ficam vazios por padrão
           parserData.relacoesExternasEncontradas.push_back(r);
       }
     | RELATION_STEREOTYPE identifier {
