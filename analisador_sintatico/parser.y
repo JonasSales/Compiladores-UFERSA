@@ -191,6 +191,14 @@ inner_relation_decl:
         attr.metaAtributo = "";
         $$ = attr;
     }
+    | RELATION_STEREOTYPE CARDINALITY RELATION_OP CARDINALITY type_ref {
+            SinteseAtributo attr;
+            attr.nome = ""; // Não há nome explícito nesta sintaxe
+            attr.tipo = $5;
+            attr.metaAtributo = $1;
+            // Se quiser salvar as cardinalidades, precisaria adicionar campos na struct SinteseAtributo
+            $$ = attr;
+    }
     ;
 
 type_ref:
