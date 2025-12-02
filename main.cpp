@@ -155,6 +155,37 @@ static void processarArquivo(const std::filesystem::path &input) {
     }
 
     cout << "Analise sintatica salva em " << syntaxAnalysis << endl << endl;
+    try {
+        parser.parse();
+    } catch (const std::exception &e) {
+        cerr << "\033[1;31m" << "Erro durante analise sintatica: " << e.what() << "\033[0m" << endl;
+    }
+
+    try { writeSyntaxAnalysis(syntaxAnalysis.string(), parserData); }
+    catch (const std::exception &e) {
+        cerr << "Erro ao salvar analise sintatica em " << syntaxAnalysis << ": " << e.what() << endl;
+    }
+
+    cout << "Analise sintatica salva em " << syntaxAnalysis << endl;
+
+    // --- ADICIONE ESTE BLOCO ---
+    cout << "\n========================================" << endl;
+    cout << "      RESUMO DA ANÁLISE SINTÁTICA       " << endl;
+    cout << "========================================" << endl;
+    cout << "Pacotes encontrados:   " << parserData.pacotesEncontrados.size() << endl;
+    cout << "Classes/Stereotypes:   " << parserData.classesEncontradas.size() << endl;
+    cout << "Gensets (Disjunções):  " << parserData.gensetsEncontrados.size() << endl;
+    cout << "Datatypes Custom:      " << parserData.datatypesEncontrados.size() << endl;
+    cout << "Enums:                 " << parserData.enumsEncontrados.size() << endl;
+    cout << "Relações Externas:     " << parserData.relacoesExternasEncontradas.size() << endl;
+
+    if (!parserData.errosSintaticos.empty()) {
+        cout << "\033[1;31m" << "Erros Sintáticos:      " << parserData.errosSintaticos.size() << "\033[0m" << endl;
+    } else {
+        cout << "\033[1;32m" << "Erros Sintáticos:      0" << "\033[0m" << endl;
+    }
+    cout << "========================================\n" << endl;
+    // ---------------------------
 }
 
 int main(int argc, char* argv[]) {
