@@ -3,7 +3,7 @@
 %{
 #include "analisador_lexico/entities/Token.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
-#include "analisador_lexico/lexer_utils/KeyWordGroup/KeyWordManager/KeyWordManager.h"
+#include "analisador_lexico/lexer_utils/KeyWordGroup/KeyWordManager.h"
 
 KeyWordManager keywords;
 int column = 1;

@@ -2,7 +2,7 @@
 #define COMPILADORESUFERSA_METAATTRIBUTEKEYWORDS_H
 
 #include "analisador_lexico/lexer_utils/lex_config.h"
-#include "../KeyWordGroup.h"
+#include "KeyWordGroup.h"
 
 class MetaAttributeKeywords final : public KeywordGroup {
 public:

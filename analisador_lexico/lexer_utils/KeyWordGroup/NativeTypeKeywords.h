@@ -1,7 +1,7 @@
 #ifndef COMPILADORESUFERSA_NATIVETYPEKEYWORDS_H
 #define COMPILADORESUFERSA_NATIVETYPEKEYWORDS_H
 
-#include "../KeyWordGroup.h"
+#include "KeyWordGroup.h"
 
 class NativeTypeKeywords final : public KeywordGroup {
 public:

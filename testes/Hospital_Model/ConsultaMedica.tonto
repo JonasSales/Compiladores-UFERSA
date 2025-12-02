@@ -12,7 +12,7 @@ relator Consulta_Medica {
     tipo_De_Consulta : Tipo_De_Consulta
 
     @mediation [1..*] -- [1] Paciente
-    @mediation [1..*] -- [1] Medico
+    @mediation [1..*] -- [0] Medico
 }
 
 enum Tipo_De_Consulta {

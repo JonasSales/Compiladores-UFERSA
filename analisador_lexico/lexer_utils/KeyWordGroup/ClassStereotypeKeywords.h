@@ -1,7 +1,7 @@
 #ifndef COMPILADORESUFERSA_CLASSSTEREOTYPEKEYWORDS_H
 #define COMPILADORESUFERSA_CLASSSTEREOTYPEKEYWORDS_H
 
-#include "../KeyWordGroup.h"
+#include "KeyWordGroup.h"
 
 class ClassStereotypeKeywords final : public KeywordGroup {
 public:

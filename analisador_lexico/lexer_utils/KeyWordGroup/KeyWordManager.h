@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <memory>
-#include "../KeyWordGroup.h"
+#include "KeyWordGroup.h"
 
 class KeyWordManager {
 private:

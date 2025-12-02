@@ -1,7 +1,7 @@
 #ifndef COMPILADORESUFERSA_RELATIONSTEREOTYPEKEYWORDS_H
 #define COMPILADORESUFERSA_RELATIONSTEREOTYPEKEYWORDS_H
 
-#include "../KeyWordGroup.h"
+#include "KeyWordGroup.h"
 
 class RelationStereotypeKeywords final : public KeywordGroup {
 public:

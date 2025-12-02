@@ -121,6 +121,8 @@ static void processarArquivo(const std::filesystem::path &input) {
         return;
     }
 
+    cout << "Iniciando analise lexica com Flex para " << base << ".tonto" << endl;
+
     streambuf* old_cin = cin.rdbuf(fin.rdbuf());
     yyFlexLexer lexer;
     try {
@@ -136,6 +138,8 @@ static void processarArquivo(const std::filesystem::path &input) {
     catch (const std::exception &e) {
         cerr << "Erro ao salvar token list em " << lexerAnalysis << ": " << e.what() << endl;
     }
+
+    cout << "Analise lexica salva em " << lexerAnalysis << endl;
 
     currentTokenIt = tokens.begin();
     endTokenIt = tokens.end();
@@ -154,7 +158,6 @@ static void processarArquivo(const std::filesystem::path &input) {
         cerr << "Erro ao salvar analise sintatica em " << syntaxAnalysis << ": " << e.what() << endl;
     }
 
-    cout << "Analise sintatica salva em " << syntaxAnalysis << endl << endl;
     try {
         parser.parse();
     } catch (const std::exception &e) {

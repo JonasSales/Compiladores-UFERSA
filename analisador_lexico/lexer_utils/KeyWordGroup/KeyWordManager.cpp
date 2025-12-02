@@ -1,10 +1,10 @@
 #include "KeyWordManager.h"
 
-#include "analisador_lexico/lexer_utils/KeyWordGroup/ClassStereotypeKeywords/ClassStereotypeKeywords.h"
-#include "analisador_lexico/lexer_utils/KeyWordGroup/MetaAttributeKeywords/MetaAttributeKeywords.h"
-#include "analisador_lexico/lexer_utils/KeyWordGroup/NativeTypeKeywords/NativeTypeKeywords.h"
-#include "analisador_lexico/lexer_utils/KeyWordGroup/RelationStereotypeKeywords/RelationStereotypeKeywords.h"
-#include "analisador_lexico/lexer_utils/KeyWordGroup/ReservedWordKeywords/ReservedWordKeywords.h"
+#include "ClassStereotypeKeywords.h"
+#include "MetaAttributeKeywords.h"
+#include "NativeTypeKeywords.h"
+#include "RelationStereotypeKeywords.h"
+#include "ReservedWordKeywords.h"
 
 KeyWordManager::KeyWordManager() {
     groups.emplace_back(std::make_unique<ClassStereotypeKeywords>());

@@ -5,7 +5,7 @@
 #ifndef COMPILADORESUFERSA_RESERVEDWORDKEYWORDS_H
 #define COMPILADORESUFERSA_RESERVEDWORDKEYWORDS_H
 
-#include "../KeyWordGroup.h"
+#include "KeyWordGroup.h"
 
 class ReservedWordKeywords final : public KeywordGroup {
 public:
