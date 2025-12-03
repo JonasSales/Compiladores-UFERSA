@@ -87,7 +87,6 @@ package_decl:
 
 import_decl:
     IMPORT identifier {
-        // Ação de importação se necessário
     }
     ;
 
@@ -98,7 +97,6 @@ class_decl:
         novaClasse.pacote = parserData.pacoteAtual;
         novaClasse.estereotipo = $1;
         novaClasse.nome = $2;
-        // O campo 'natureza' ($3) poderia ser salvo em novaClasse se a struct suportar
         novaClasse.herdaDe = $4;
         novaClasse.atributos = $5;
         $$ = novaClasse;
@@ -167,7 +165,6 @@ attribute_decl:
         SinteseAtributo attr;
         attr.nome = $1;
         attr.tipo = $3;
-        // attr.cardinalidade = $4; // Descomente se SinteseAtributo tiver este campo
         $$ = attr;
     }
     ;
@@ -191,10 +188,9 @@ inner_relation_decl:
     }
     | RELATION_STEREOTYPE CARDINALITY RELATION_OP CARDINALITY type_ref {
             SinteseAtributo attr;
-            attr.nome = ""; // Não há nome explícito nesta sintaxe
+            attr.nome = ""; 
             attr.tipo = $5;
             attr.metaAtributo = $1;
-            // Se quiser salvar as cardinalidades, precisaria adicionar campos na struct SinteseAtributo
             $$ = attr;
     }
     ;
@@ -267,7 +263,6 @@ relation_decl:
           r.cardinalidadeDominio = $4; // $4 é a cardinalidade da origem (ex: [1..*])
           r.simboloRelacao = $5;       // $5 é o operador (ex: --)
           r.nome = $6;                 // $6 é o nome da relação
-          // $7 é o segundo operador (ignoramos ou assumimos simetria)
           r.cardinalidadeImagem = $8;  // $8 é a cardinalidade do destino
           r.imagem = $9;               // $9 é o identificador da classe de destino (Target)
 
@@ -279,7 +274,6 @@ relation_decl:
           SinteseRelacao r;
           r.estereotipo = $1;
           r.nome = $3;
-          // Outros campos ficam vazios por padrão
           parserData.relacoesExternasEncontradas.push_back(r);
       }
     | RELATION_STEREOTYPE identifier {
