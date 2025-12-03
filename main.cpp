@@ -7,12 +7,11 @@
 #include "FlexLexer.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
 #include "util/JsonWriter.h"
-#include "parser.hpp"                     // gerado pelo bison (build/parser.hpp)
-#include "analisador_sintatico/Parser.h"  // sua struct Parser (parserData)
+#include "parser.hpp"                    
+#include "analisador_sintatico/Parser.h"  
 
 using namespace std;
 
-// Declarações globais
 extern std::map<int, Token> tokens;
 extern TokenAnalisys tokenAnalisys;
 extern Parser parserData;
@@ -41,7 +40,7 @@ yy::parser::symbol_type yylex() {
     TokenType type = token.getTokenType();
     string lexeme = token.getLexeme();
 
-    // --- SALVANDO O LEXEMA ATUAL ---
+     --- SALVANDO O LEXEMA ATUAL ---
     parserData.ultimoLexema = lexeme;
 
     ++currentTokenIt;
@@ -171,7 +170,6 @@ static void processarArquivo(const std::filesystem::path &input) {
 
     cout << "Analise sintatica salva em " << syntaxAnalysis << endl;
 
-    // --- ADICIONE ESTE BLOCO ---
     cout << "\n========================================" << endl;
     cout << "      RESUMO DA ANÁLISE SINTÁTICA       " << endl;
     cout << "========================================" << endl;
@@ -188,7 +186,6 @@ static void processarArquivo(const std::filesystem::path &input) {
         cout << "\033[1;32m" << "Erros Sintáticos:      0" << "\033[0m" << endl;
     }
     cout << "========================================\n" << endl;
-    // ---------------------------
 }
 
 int main(int argc, char* argv[]) {
