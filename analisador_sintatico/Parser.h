@@ -3,7 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
+using std::map;
 using std::vector;
 using std::string;
 
@@ -60,12 +62,18 @@ struct SinteseRelacao {
 class Parser {
 public:
     string pacoteAtual = "default";
-    string ultimoLexema = "";
+    string ultimoLexema;
+
     vector<string> pacotesEncontrados;
-    vector<SinteseClasse> classesEncontradas;
-    vector<SinteseGenset> gensetsEncontrados;
-    vector<SinteseDatatype> datatypesEncontrados;
-    vector<SinteseEnum> enumsEncontrados;
+
+    vector<string> importsTemporarios;
+    map<string, vector<string>> importsPorPacote;
+
+    map<string, SinteseClasse> classesEncontradas;
+    map<string, SinteseGenset> gensetsEncontrados;
+    map<string, SinteseDatatype> datatypesEncontrados;
+    map<string, SinteseEnum> enumsEncontrados;
+
     vector<SinteseRelacao> relacoesExternasEncontradas;
     vector<SinteseErro> errosSintaticos;
 
@@ -73,6 +81,32 @@ public:
 
     void addErro(const int l, const int c, const string& msg) {
         errosSintaticos.push_back({l, c, msg});
+    }
+
+    static string makeKey(const string& pacote, const string& nome) {
+        return pacote + "::" + nome;
+    }
+
+    void addImport(const string& pkg) {
+        if (pacoteAtual == "default") {
+            importsTemporarios.push_back(pkg);
+        } else {
+            importsPorPacote[pacoteAtual].push_back(pkg);
+        }
+    }
+
+    void definirPacote(const string& pkg) {
+        pacoteAtual = pkg;
+        pacotesEncontrados.push_back(pkg);
+
+        if (!importsTemporarios.empty()) {
+            importsPorPacote[pkg].insert(
+                importsPorPacote[pkg].end(),
+                importsTemporarios.begin(),
+                importsTemporarios.end()
+            );
+            importsTemporarios.clear();
+        }
     }
 };
 

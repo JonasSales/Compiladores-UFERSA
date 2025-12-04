@@ -35,8 +35,8 @@ file(GLOB_RECURSE SOURCES
         "util/*.cpp"
         "analisador_lexico/*.h"
         "analisador_lexico/*.cpp"
-        # Removemos o Parser.cpp manual antigo da compilação para não conflitar, ou mantemos se quiser comparar
-        # "analisador_sintatico/Parser.cpp"
+        "analisador_semantico/*.h"
+        "analisador_semantico/*.cpp"
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})

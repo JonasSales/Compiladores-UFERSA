@@ -61,9 +61,7 @@ declarations_list:
 declaration:
       package_decl
     | import_decl
-    | class_decl {
-        parserData.classesEncontradas.push_back($1);
-    }
+    | class_decl
     | genset_decl
     | datatype_decl
     | enum_decl
@@ -80,14 +78,13 @@ identifier:
 /* --- Package & Import --- */
 package_decl:
     PACKAGE identifier {
-        parserData.pacoteAtual = $2;
-        parserData.pacotesEncontrados.push_back($2);
+        parserData.definirPacote($2);
     }
     ;
 
 import_decl:
     IMPORT identifier {
-        // Ação de importação se necessário
+        parserData.addImport($2);
     }
     ;
 
@@ -98,9 +95,12 @@ class_decl:
         novaClasse.pacote = parserData.pacoteAtual;
         novaClasse.estereotipo = $1;
         novaClasse.nome = $2;
-        // O campo 'natureza' ($3) poderia ser salvo em novaClasse se a struct suportar
         novaClasse.herdaDe = $4;
         novaClasse.atributos = $5;
+
+        string key = Parser::makeKey(novaClasse.pacote, novaClasse.nome);
+        parserData.classesEncontradas[key] = novaClasse;
+
         $$ = novaClasse;
     }
     ;
@@ -232,19 +232,23 @@ genset_decl:
         gs.classeGeral = $6;
         gs.classesEspecificas = $8;
 
+        string currentPkg = parserData.pacoteAtual;
+
         std::string flags = $1;
         gs.isDisjoint = (flags.find("disjoint") != std::string::npos);
         gs.isComplete = (flags.find("complete") != std::string::npos);
 
-        parserData.gensetsEncontrados.push_back(gs);
-    }
+        string key = Parser::makeKey(currentPkg, gs.nome);
+        parserData.gensetsEncontrados[key] = gs;    }
     ;
 
 datatype_decl:
     DATATYPE identifier "{" "}" {
         SinteseDatatype dt;
         dt.nome = $2; dt.pacote = parserData.pacoteAtual;
-        parserData.datatypesEncontrados.push_back(dt);
+
+        string key = Parser::makeKey(dt.pacote, dt.nome);
+        parserData.datatypesEncontrados[key] = dt;
     }
     ;
 
@@ -254,8 +258,10 @@ enum_decl:
         en.nome = $2;
         en.pacote = parserData.pacoteAtual;
         en.instancias = $4;
-        parserData.enumsEncontrados.push_back(en);
-    }
+
+        string key = Parser::makeKey(en.pacote, en.nome);
+        parserData.enumsEncontrados[key] = en;
+        }
     ;
 
 relation_decl:
@@ -319,7 +325,7 @@ void yy::parser::error(const yy::location& loc, const std::string& m) {
         corpoMensagem = mensagem;
     }
 
-    std::cerr << "\033[1;31m"
+    std::cerr << "\039[1;31m"
               << "syntax error (linha " << loc.begin.line
               << ", coluna " << loc.begin.column << "): "
               << corpoMensagem
