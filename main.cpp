@@ -20,6 +20,13 @@ extern Parser parserData;
 extern std::map<int, Token>::iterator currentTokenIt;
 extern std::map<int, Token>::iterator endTokenIt;
 
+// Códigos de cores ANSI
+const string RESET   = "\033[0m";
+const string RED     = "\033[1;31m"; // Vermelho Negrito
+const string GREEN   = "\033[1;32m"; // Verde Negrito
+const string YELLOW  = "\033[33m";   // Amarelo (Linha/Coluna)
+const string CYAN    = "\033[36m";   // Ciano (Arquivo)
+
 yy::parser::symbol_type yylex() {
     yy::parser::location_type loc;
 
@@ -92,7 +99,7 @@ static void processarArquivo(const std::filesystem::path &input) {
 
     ifstream fin(input.string());
     if (!fin) {
-        cerr << "\033[1;31m" << "Não foi possível abrir o arquivo: " << input.string() << "\033[0m" << endl;
+        cerr << RED << "Não foi possível abrir o arquivo: " << input.string() << RESET << endl;
         return;
     }
 
@@ -103,7 +110,7 @@ static void processarArquivo(const std::filesystem::path &input) {
     try {
         lexer.yylex();
     } catch(const std::exception &e) {
-        cerr << "\033[1;31m" << "Erro durante a análise léxica: " << e.what() << "\033[0m" << endl;
+        cerr << RED << "Erro durante a análise léxica: " << e.what() << RESET << endl;
     }
     cin.rdbuf(old_cin);
     fin.close();
@@ -120,19 +127,23 @@ static void processarArquivo(const std::filesystem::path &input) {
 
     cout << "Iniciando analise sintatica com Bison para " << base << ".tonto" << endl;
 
+    parserData.arquivoAtual = base + ".tonto";
+
     size_t qtdErrosAntes = parserData.errosSintaticos.size();
 
     yy::parser parser;
     try {
         parser.parse();
     } catch (const std::exception &e) {
-        cerr << "\033[1;31m" << "Erro durante analise sintatica: " << e.what() << "\033[0m" << endl;
+        cerr << RED << "Erro durante analise sintatica: " << e.what() << RESET << endl;
     }
 
     size_t qtdErrosDepois = parserData.errosSintaticos.size();
+
+    // Adiciona o nome do arquivo (Ciano) e a mensagem de erro (Vermelho)
     for (size_t i = qtdErrosAntes; i < qtdErrosDepois; i++) {
         parserData.errosSintaticos[i].mensagem =
-            "["+ base + ".tonto] " + parserData.errosSintaticos[i].mensagem;
+            CYAN + "["+ base + ".tonto]" + RESET + " " + RED + parserData.errosSintaticos[i].mensagem + RESET;
     }
 
     try { writeSyntaxAnalysis(syntaxAnalysis.string(), parserData); }
@@ -140,7 +151,6 @@ static void processarArquivo(const std::filesystem::path &input) {
         cerr << "Erro ao salvar analise sintatica em " << syntaxAnalysis << ": " << e.what() << endl;
     }
     cout << "Analise sintatica salva em " << syntaxAnalysis.string() << endl << endl;
-
 }
 
 int main(int argc, char* argv[]) {
@@ -152,7 +162,7 @@ int main(int argc, char* argv[]) {
         if (std::filesystem::exists(arquivoUnico)) {
             arquivosParaProcessar.push_back(arquivoUnico);
         } else {
-             cerr << "\033[1;31m" << "[ERRO] Arquivo informado não existe: " << arquivoUnico << "\033[0m" << endl;
+             cerr << RED << "[ERRO] Arquivo informado não existe: " << arquivoUnico << RESET << endl;
              return 1;
         }
     } else {
@@ -164,13 +174,13 @@ int main(int argc, char* argv[]) {
                 }
             }
         } else {
-            cerr << "\033[1;31m" << "[AVISO] Pasta '../testes' não encontrada!" << "\033[0m" << endl;
+            cerr << RED << "[AVISO] Pasta '../testes' não encontrada!" << RESET << endl;
             return 1;
         }
     }
 
     if (arquivosParaProcessar.empty()) {
-        cerr << "\033[1;33m" << "[AVISO] Nenhum arquivo .tonto encontrado para processar." << "\033[0m" << endl;
+        cerr << YELLOW << "[AVISO] Nenhum arquivo .tonto encontrado para processar." << RESET << endl;
         return 0;
     }
 
@@ -181,9 +191,11 @@ int main(int argc, char* argv[]) {
     bool temErrosSintaticos = !parserData.errosSintaticos.empty();
 
     if (temErrosSintaticos) {
-        cout << "\033[1;31m" << "[ERROS SINTÁTICOS]" << "\033[0m" << endl;
+        cout << RED << "[ERROS SINTÁTICOS]" << RESET << endl;
         for (const auto& erro : parserData.errosSintaticos) {
-            cout << "  - [Linha " << erro.linha << ", Coluna " << erro.coluna << "] " << erro.mensagem << endl;
+            // Imprime Linha/Coluna em Amarelo. A mensagem já contém as cores de Arquivo e Erro.
+            cout << "  - " << YELLOW << "[Linha " << erro.linha << ", Coluna " << erro.coluna << "]" << RESET
+                 << " " << erro.mensagem << endl;
         }
     }
 
@@ -193,19 +205,21 @@ int main(int argc, char* argv[]) {
 
     if (temErrosSemanticos) {
         if (temErrosSintaticos) cout << endl;
-        cout << "\033[1;31m" << "[ERROS SEMÂNTICOS]" << "\033[0m" << endl;
+        cout << RED << "[ERROS SEMÂNTICOS]" << RESET << endl;
         const auto& erros = semantico.getErros();
         for (const auto& erro : erros) {
-             cout << "  - " << erro.mensagem << endl;
+             // Imprime Linha/Coluna em Amarelo
+             cout << "  - " << YELLOW << "[Linha " << erro.linha << ", Coluna " << erro.coluna << "]" << RESET
+                  << " " << erro.mensagem << endl;
         }
     }
 
     if (!temErrosSintaticos && !temErrosSemanticos) {
-        cout << "\033[1;32m" << "[SUCESSO] O projeto esta consistente (Sintaxe e Semantica OK)." << "\033[0m" << endl;
+        cout << "\n" << GREEN << "[SUCESSO] O projeto esta consistente (Sintaxe e Semantica OK)." << RESET << endl;
     } else {
-        cout << "\n\033[1;31m" << "[FALHA] O projeto contém erros (Sintáticos: "
+        cout << "\n" << RED << "[FALHA] O projeto contém erros (Sintáticos: "
              << parserData.errosSintaticos.size() << ", Semânticos: "
-             << semantico.getErros().size() << ")." << "\033[0m" << endl;
+             << semantico.getErros().size() << ")." << RESET << endl;
     }
 
     cout << "\n========================================" << endl;
@@ -215,7 +229,6 @@ int main(int argc, char* argv[]) {
     cout << "Gensets (Disjunções):  " << parserData.gensetsEncontrados.size() << endl;
     cout << "Enums:                 " << parserData.enumsEncontrados.size() << endl;
     cout << "Relações Externas:     " << parserData.relacoesExternasEncontradas.size() << endl;
-    cout << "Erros Sintáticos:      " << parserData.errosSintaticos.size() << endl;
     cout << "========================================\n" << endl;
 
     return 0;

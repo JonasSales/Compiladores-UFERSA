@@ -11,28 +11,32 @@ Este projeto é um analisador léxico e sintático para a linguagem de modelagem
 
 ```
 .
-├── analisador_lexico            //Pacote para analisador léxico
-│   ├── entities                 //Classes utilizadas na análise léxica
-│   │   ├── TokenAnalisys.cpp    
-│   │   ├── TokenAnalisys.h      //Definição de como será a escrita da análise léxica           
-│   │   └── Token.cpp e .h       //Definição do que é um Token e suas funções
-│   ├── lexer                    //Analisador léxico
-│   │   └── lexer.l             
-│   └── lexer_utils              
-│       ├── KeyWordGroup         //Definição de todas as palavras reservadas para a linguaguem         
-│       └── lex_config.cpp e .h  //Função para tratar processar os Tokens de entrada e saída
-├── analisador_sintatico         //Pacote para analisador sintático
-│   ├── Parser.h                 //Definição do parser e todos os structs usandos na síntese 
-│   └── parser.y                 //Definição das regras gramaticais
-├── build                        //Pasta gerada automaticamente após compilação
-├── CMakeLists.txt               //CMake para automatizar processo de compilação
-├── main.cpp                     //Lógica de funcionamento do código
-├── readme.md
-├── testes                       //Pasta para se colocar os arquivos da ontologia e armazenar as saídas das análises léxica e sintática
-│   ├── Hospital_Model           //Ex: Hospital
-│   ├── Pizzaria_Model           //Ex: Pizzaria
-|   └── TDAH                     //Ex: TDAH
-└── util                         //Funções para gerar Json com as análises 
+├── analisador_lexico            // Pacote para analisador léxico
+│   ├── entities                 // Classes utilizadas na análise léxica
+│   │   ├── TokenAnalisys.cpp    
+│   │   ├── TokenAnalisys.h      // Definição de como será a escrita da análise léxica           
+│   │   └── Token.cpp e .h       // Definição do que é um Token e suas funções
+│   ├── lexer                    // Analisador léxico
+│   │   └── lexer.l             
+│   └── lexer_utils              
+│       ├── KeyWordGroup         // Definição de todas as palavras reservadas para a linguaguem         
+│       └── lex_config.cpp e .h  // Função para tratar processar os Tokens de entrada e saída
+├── analisador_semantico         // Pacote para analisador semântico 
+│   ├── SemanticAnalyzer.h       // Definição da classe de análise semântica
+│   └── SemanticAnalyzer.cpp     // Implementação das regras de validação lógica
+├── analisador_sintatico         // Pacote para analisador sintático
+│   ├── Parser.h                 // Definição do parser e todos os structs usandos na síntese 
+│   └── parser.y                 // Definição das regras gramaticais
+├── build                        // Pasta gerada automaticamente após compilação
+├── testes                       // Pasta contendo os arquivos .tonto de entrada e os .json de saída
+│   ├── Hospital_Model           // Ex: Hospital
+│   ├── Pizzaria_Model           // Ex: Pizzaria
+│   ├── TDAH                     // Ex: TDAH
+│   └── design_Patterns          // Casos de teste específicos para os padrões (sucesso e falha)
+├── util                         // Funções para gerar Json com as análise 
+├── CMakeLists.txt               // CMake para automatizar processo de compilação
+├── main.cpp                     // Lógica de funcionamento do código e orquestração
+└── readme.md
 
 ```
 
@@ -92,6 +96,20 @@ syntax error (linha 19, coluna 36): unexpected "specializes", expecting CLASS_NA
 syntax error (linha 19, coluna 48): unexpected "Alergia", expecting EOF
 Analise sintatica salva em "../testes/FoodAllergyExample/alergiaAlimentarSyntaxAnalysis.json"
 
+* 🔵 [Ciano]: Indica o nome do arquivo sendo analisado (Contexto).
+* 🟡 [Amarelo]: Indica a localização exata do erro (Linha e Coluna).
+* 🟣 [Magenta]: Indica qual Padrão de Projeto (ODP) está sendo violado (ex: [Subkind Pattern], [Phase Pattern]).
+* 🔴 [Vermelho]: Mensagem descritiva do erro ou indicação de falha na compilação.
+* 🟢 [Verde]: Mensagem de sucesso quando o projeto está consistente.
+
+[ERROS SINTÁTICOS]
+  - [Linha 12, Coluna 5] [alergiaAlimentar.tonto]  syntax error, unexpected "specializes", expecting CLASS_NAME or RELATION_NAME or INSTANCE_NAME
+
+[ERROS SEMÂNTICOS]
+  - [Linha 12, Coluna 5] [mode_pattern.tonto] [Mode Pattern] O mode 'Competencia' deve possuir @characterization.
+
+[FALHA] O projeto contém erros (Sintáticos: 0, Semânticos: 1).
+
 ========================================
       RESUMO DA ANÁLISE SINTÁTICA       
 ========================================
@@ -101,7 +119,6 @@ Gensets (Disjunções):  0
 Datatypes Custom:      0
 Enums:                 0
 Relações Externas:     0
-Erros Sintáticos:      2
 ========================================
 ```
 

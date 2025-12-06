@@ -27,6 +27,11 @@ struct SinteseClasse {
     string pacote;
     string herdaDe;
     vector<SinteseAtributo> atributos;
+
+    // Novos campos de localização
+    int linha = 0;
+    int coluna = 0;
+    string arquivo;
 };
 
 struct SinteseGenset {
@@ -35,12 +40,22 @@ struct SinteseGenset {
     vector<string> classesEspecificas;
     bool isDisjoint;
     bool isComplete;
+
+    // Novos campos de localização
+    int linha = 0;
+    int coluna = 0;
+    string arquivo;
 };
 
 struct SinteseDatatype {
     string nome;
     string pacote;
     vector<SinteseAtributo> atributos;
+
+    // Novos campos de localização
+    int linha = 0;
+    int coluna = 0;
+    string arquivo;
 };
 
 struct SinteseEnum {
@@ -57,11 +72,17 @@ struct SinteseRelacao {
     string imagem;
     string cardinalidadeImagem;
     string simboloRelacao;
+
+    // Novos campos de localização
+    int linha = 0;
+    int coluna = 0;
+    string arquivo;
 };
 
 class Parser {
 public:
     string pacoteAtual = "default";
+    string arquivoAtual; // Novo: Armazena o nome do arquivo sendo processado
     string ultimoLexema;
 
     vector<string> pacotesEncontrados;

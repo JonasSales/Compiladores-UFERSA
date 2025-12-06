@@ -4,6 +4,10 @@
 #include "analisador_lexico/entities/Token.h"
 #include "analisador_lexico/lexer_utils/lex_config.h"
 #include "analisador_lexico/lexer_utils/KeyWordGroup/KeyWordManager.h"
+#include "analisador_sintatico/Parser.h"
+
+// Permite acessar a estrutura global de dados para registrar erros
+extern Parser parserData;
 
 KeyWordManager keywords;
 int column = 1;
@@ -36,7 +40,7 @@ COMMENT_BLOCK   "/*"([^*]|(\*+[^*/]))*\*+"/"
 %%
 
 {COMMENT_LINE}  |
-{COMMENT_BLOCK} { 
+{COMMENT_BLOCK} {
     for (int i = 0; yytext[i] != '\0'; i++) {
             if (yytext[i] == '\n') {
                 column = 1;
@@ -47,7 +51,7 @@ COMMENT_BLOCK   "/*"([^*]|(\*+[^*/]))*\*+"/"
 }
 
 {CARDINALITY} {
-Token token = {yylineno, column, TokenType::CARDINALITY, yytext};
+    Token token = {yylineno, column, TokenType::CARDINALITY, yytext};
     tokens.emplace(token.getContador(), token);
     column+= yyleng;
 }
@@ -78,7 +82,10 @@ Token token = {yylineno, column, TokenType::CARDINALITY, yytext};
 }
 
 {LETTER}({LETTER}|{DIGIT}|{UNDERLINE})* {
-    fprintf(stderr, "[ERRO LÉXICO] Linha %d, Coluna %d: Identificador mal formado: '%s'.\n", yylineno, column, yytext);
+    /* ALTERAÇÃO: Registra o erro na lista global em vez de imprimir direto */
+    std::string msg = "Identificador mal formado: '" + std::string(yytext) + "'";
+    parserData.addErro(yylineno, column, msg);
+
     Token token = {yylineno, column, TokenType::UNKNOWN, yytext};
     tokens.emplace(token.getContador(), token);
     column+= yyleng;
@@ -135,7 +142,10 @@ Token token = {yylineno, column, TokenType::CARDINALITY, yytext};
 }
 
 . {
-    fprintf(stderr, "[ERRO LÉXICO] Linha %d, Coluna %d: Caractere desconhecido: '%s'.\n", yylineno, column, yytext);
+    /* ALTERAÇÃO: Registra o erro na lista global em vez de imprimir direto */
+    std::string msg = "Caractere desconhecido: '" + std::string(yytext) + "'";
+    parserData.addErro(yylineno, column, msg);
+
     Token token = {yylineno, column, TokenType::UNKNOWN, yytext};
     tokens.emplace(token.getContador(), token);
     column+= yyleng;

@@ -36,7 +36,10 @@ public:
             {"inherence", TokenType::RELATION_STEREOTYPE},
             {"value", TokenType::RELATION_STEREOTYPE},
             {"formal", TokenType::RELATION_STEREOTYPE},
-            {"constitution", TokenType::RELATION_STEREOTYPE}
+            {"constitution", TokenType::RELATION_STEREOTYPE},
+            {"@characterization", TokenType::RELATION_STEREOTYPE},
+            {"@externalDependence", TokenType::RELATION_STEREOTYPE}
+
         };
     }
 };
